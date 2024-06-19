@@ -8,24 +8,29 @@ const app = express();
 
 // Middleware to enable CORS
 const corsOptions = {
-    origin: 'http://localhost:3000',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders: 'Content-Type, Authorization',
-  };
+  origin: 'http://localhost:3000',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  allowedHeaders: 'Content-Type, Authorization',
+};
 
 app.use(cors(corsOptions));
-
 app.use(bodyParser.json());
-
 app.use('/api/auth', authRoutes);
-
 
 const PORT = process.env.PORT || 5000;
 
-sequelize.sync()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
-  })
-  .catch(err => console.log('Error: ' + err));
+// Export app and a function to start the server
+module.exports = {
+  app,
+  startServer: async () => {
+    try {
+      await sequelize.sync();
+      return app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+      });
+    } catch (error) {
+      console.error('Error starting server:', error);
+      process.exit(1); // Exit with error
+    }
+  },
+};
