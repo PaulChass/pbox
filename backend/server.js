@@ -9,12 +9,15 @@ const User = require('./models/User'); // Assuming User model is defined
 const app = express();
 
 // Middleware setup
+require('dotenv').config();
+
 app.use(express.json());
 app.use(bodyParser.json()); // You can remove this line if using express.json()
 app.use(cors({
   origin: 'http://localhost:3000',
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-  allowedHeaders: 'Content-Type, Authorization',
+  allowedHeaders: 'Content-Type, Authorization',  
+  credentials: true, // Autoriser l'envoi de cookies ou d'authentification HTTP
 }));
 
 // Handle preflight requests

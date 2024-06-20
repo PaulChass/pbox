@@ -8,6 +8,7 @@ const multer = require('multer');
 exports.getFolders = async (req, res) => {
     try {
         const folders = await Folder.findAll({
+            where: { user_id: req.user.id },
             include: [
                 {
                     model: Folder,
@@ -34,10 +35,13 @@ exports.createFolder = async (req, res) => {
             user_id: user.dataValues.id
         });
         res.status(201).json(newFolder);
+       
+
     } catch (error) {
         console.error('Failed to create folder:', error.message);
         res.status(500).json({ error: 'Failed to create folder' });
     }
+    
 };
 
 // Set up multer storage and upload configuration
