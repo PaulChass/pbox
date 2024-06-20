@@ -8,19 +8,17 @@ const folderRoutes = require('./routes/folder');
 const User = require('./models/User'); // Assuming User model is defined
 const app = express();
 
-// Middleware to enable CORS
-const corsOptions = {
+// Middleware setup
+app.use(express.json());
+app.use(bodyParser.json()); // You can remove this line if using express.json()
+app.use(cors({
   origin: 'http://localhost:3000',
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   allowedHeaders: 'Content-Type, Authorization',
-};
-
-app.use(cors(corsOptions));
+}));
 
 // Handle preflight requests
-app.options('*', cors(corsOptions));
-
-app.use(bodyParser.json());
+app.options('*', cors());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/folders', folderRoutes);
@@ -41,8 +39,6 @@ app.delete('/api/users/:userId', async (req, res) => {
     res.status(500).json({ error: 'Failed to delete user' });
   }
 });
-
-
 
 const PORT = process.env.PORT || 5000;
 
