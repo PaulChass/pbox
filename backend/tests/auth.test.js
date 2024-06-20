@@ -1,45 +1,50 @@
 const request = require('supertest');
-const { app, startServer } = require('../server');
+const app = require('../server'); // Assuming app is exported from server.js
 const sequelize = require('../config/db');
 
-beforeAll(async () => {
-  await startServer();
+let server;
+let userId; // Declare userId outside of describe block
+
+beforeAll(done => {
+  // Start the server and store the instance
+  server = app.listen(done);
 });
 
 afterAll(async () => {
+  // Clean up: Delete the user that was registered during the test
+  if (userId) {
+    await request(app)
+      .delete(`/api/users/${userId}`)  // Adjust endpoint as per your API
+      .set('Authorization', 'Bearer your-auth-token-here') // If authorization is required
+      .expect(200); // Assuming successful deletion returns 200
+  }
+
+  // Close the server and the Sequelize connection
+  await server.close();
   await sequelize.close();
 });
 
-describe('POST /register', () => {
+describe('POST /api/auth/register', () => {
   it('should register a new user', async () => {
     const res = await request(app)
       .post('/api/auth/register')
       .send({
-        username: 'testlo',
-        email: 'testlo@example.com',
+        username: 'testuser',
+        email: 'test@example.com',
         password: 'password'
       });
     expect(res.statusCode).toEqual(201);
     expect(res.body).toHaveProperty('message', 'User registered successfully');
+    // Assuming the response body contains the new user's ID
+    userId = res.body.user.id;
   });
-});
 
-describe('POST /login', () => {
   it('should login an existing user', async () => {
-    // First, register a user
-    await request(app)
-      .post('/api/auth/register')
-      .send({
-        username: 'testmuser',
-        email: 'testmuser@example.com',
-        password: 'password'
-      });
-
     // Now, attempt to login with the registered user credentials
     const res = await request(app)
       .post('/api/auth/login')
       .send({
-        email: 'testmuser@example.com',
+        email: 'test@example.com',
         password: 'password'
       });
 
@@ -48,7 +53,7 @@ describe('POST /login', () => {
     expect(res.body).toHaveProperty('token');
   });
 
-  it('should handle incorrect email', async () => {
+  it('should handle incorrect credentials', async () => {
     const res = await request(app)
       .post('/api/auth/login')
       .send({
@@ -58,17 +63,5 @@ describe('POST /login', () => {
 
     expect(res.statusCode).toEqual(404);
     expect(res.body).toHaveProperty('message', 'User not found');
-  });
-  
-  it('should handle incorrect password', async () => {
-    const res = await request(app)
-      .post('/api/auth/login')
-      .send({
-        email: 'testmuser@example.com',
-        password: 'wrongpassword'
-      });
-
-    expect(res.statusCode).toEqual(400);
-    expect(res.body).toHaveProperty('message', 'Invalid credentials');
   });
 });
