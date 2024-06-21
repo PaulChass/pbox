@@ -1,5 +1,5 @@
 const express = require('express');
-const { getFolders, createFolder, uploadFiles, fetchFiles } = require('../controllers/folderController');
+const { getFolders, createFolder, uploadFiles, fetchFiles, downloadFolder } = require('../controllers/folderController');
 const router = express.Router();
 const  authenticate  = require('../middleware/auth');
 
@@ -16,6 +16,10 @@ router.post('/:folderId/upload', authenticate , uploadFiles);
 
 
 // Fetch files in a folder
-router.get('/:folderId/files', fetchFiles);
+router.get('/:folderId/files', authenticate, fetchFiles);
+
+// Download folder
+router.get('/:folderId/download', authenticate, downloadFolder);
+
 
 module.exports = router;

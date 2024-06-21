@@ -1,6 +1,7 @@
 const  Folder  = require('../models/Folder');
 const User = require('../models/User');
 const File = require('../models/File');
+const archiver = require('archiver');
 
 const fs = require('fs');
 const path = require('path');
@@ -49,14 +50,22 @@ exports.createFolder = async (req, res) => {
 // Configure multer for file storage
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/'); // Define your upload directory
+    const folderId = req.params.folderId; // Get folderId from request params
+    const uploadPath = path.join(__dirname, '..', 'uploads', folderId);
+
+    // Ensure the folder exists
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+
+    cb(null, uploadPath); // Use the created directory
   },
   filename: function (req, file, cb) {
-    cb(null, `${Date.now()}-${file.originalname}`);
+    cb(null, `${file.originalname}`);
   }
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
 
 exports.uploadFiles = (req, res) => {
   let folderId = req.params.folderId || null;
@@ -101,7 +110,7 @@ console.log(req.user.id);
         let folderId = req.params.folderId || null;
         if (folderId === 'null') {
           folderId = null;
-        }        const files = await File.findAll({ where: { folder_id: folderId } }); // Adjust according to your schema
+        }        const files = await File.findAll({ where: { folder_id: folderId , user_id: req.user.id} }); // Adjust according to your schema
         console.log(files);
         res.json(files);
     } catch (error) {
@@ -109,3 +118,64 @@ console.log(req.user.id);
         res.status(500).json({ error: 'Failed to fetch files' });
     }
   };
+
+  const addFolderToArchive = async (archive, folder, baseFolderPath, baseArchivePath, userId) => {
+    console.log(`Adding folder to archive: ${baseFolderPath}`);
+    
+    // Add files in the current folder to the archive
+    const files = await File.findAll({ where: { folder_id: folder.id, user_id: userId } });
+    for (const file of files) {
+        const filePath = path.join(baseFolderPath, file.name);
+        console.log(`Checking file path: ${filePath}`);
+        if (fs.existsSync(filePath)) {
+            const archiveFilePath = path.join(baseArchivePath, file.name);
+            console.log(`Adding file to archive: ${filePath} as ${archiveFilePath}`);
+            archive.file(filePath, { name: archiveFilePath });
+        } else {
+            console.log(`File not found: ${filePath}`);
+        }
+    }
+
+    // Add subfolders recursively to the archive
+    const subfolders = await Folder.findAll({ where: { parent_id: folder.id, user_id: userId } });
+    for (const subfolder of subfolders) {
+        const subfolderPath = path.join(baseFolderPath, '..', subfolder.id.toString());
+        const subfolderArchivePath = path.join(baseArchivePath, subfolder.name);
+        console.log(`Adding subfolder to archive: ${subfolderPath} as ${subfolderArchivePath}`);
+        await addFolderToArchive(archive, subfolder, subfolderPath, subfolderArchivePath, userId);
+    }
+};
+
+
+exports.downloadFolder = async (req, res) => {
+  try {
+      const folderId = req.params.folderId;
+      const folder = await Folder.findByPk(folderId);
+      
+      if (!folder) {
+          return res.status(404).json({ error: 'Folder not found' });
+      }
+
+      const archive = archiver('zip', {
+          zlib: { level: 9 } // Compression level
+      });
+
+      res.attachment(`${folder.name}.zip`);
+
+      archive.on('error', (err) => {
+          throw err;
+      });
+
+      archive.pipe(res);
+
+      const folderPath = path.join(__dirname, '..', 'uploads', folderId.toString());
+      console.log(`Starting to add folder to archive: ${folderPath}`);
+      await addFolderToArchive(archive, folder, folderPath, folder.name, req.user.id);
+
+      await archive.finalize();
+  } catch (error) {
+      console.error('Failed to download folder:', error);
+      res.status(500).json({ error: 'Failed to download folder' });
+  }
+};
+
