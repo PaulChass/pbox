@@ -4,6 +4,8 @@ const cors = require('cors');
 const sequelize = require('./config/db');
 const authRoutes = require('./routes/auth');
 const folderRoutes = require('./routes/folder');
+const shareableLinkRoutes = require('./routes/shareableLink');
+
 
 const User = require('./models/User'); // Assuming User model is defined
 const app = express();
@@ -25,6 +27,8 @@ app.options('*', cors());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/folders', folderRoutes);
+app.use('/api/shareable-links', shareableLinkRoutes );
+
 
 // Example route to delete a user by ID
 app.delete('/api/users/:userId', async (req, res) => {

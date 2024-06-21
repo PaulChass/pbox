@@ -4,6 +4,7 @@ import CreateFolder from '../components/CreateFolder';
 import FileList from '../components/FilesList';
 import { useLocation } from 'react-router-dom';
 import DownloadFolder from './DownloadFolder';
+import CreateShareableLink from './CreateShareableLink';
 
 
 const FolderTree = () => {
@@ -76,7 +77,7 @@ const FolderTree = () => {
             <CreateFolder setFolders={setFolders} folderId={folderId} />
             <h2>Folder Structure</h2>
             {isNotRootFolder && <button onClick={() => handleBackClick(folderId)}>...</button>}
-            <ul>{renderFolders(folders)}<DownloadFolder folderId={folderId} /></ul>
+            <ul>{renderFolders(folders)}<DownloadFolder folderId={folderId} /><CreateShareableLink folderId={folderId}/></ul>
             <FileList folderId={folderId} />
         </div>
     );
