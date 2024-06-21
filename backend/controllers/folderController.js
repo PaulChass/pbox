@@ -1,5 +1,7 @@
 const  Folder  = require('../models/Folder');
 const User = require('../models/User');
+const File = require('../models/File');
+
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
@@ -44,36 +46,66 @@ exports.createFolder = async (req, res) => {
     
 };
 
-// Set up multer storage and upload configuration
+// Configure multer for file storage
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      const folderId = req.params.folderId;
-      const uploadPath = path.join(__dirname, '..', 'uploads', folderId);
-      if (!fs.existsSync(uploadPath)) {
-        fs.mkdirSync(uploadPath, { recursive: true });
-      }
-      cb(null, uploadPath);
-    },
-    filename: (req, file, cb) => {
-      cb(null, file.originalname); // Use original filename
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/'); // Define your upload directory
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  }
+});
+
+const upload = multer({ storage: storage });
+
+exports.uploadFiles = (req, res) => {
+  let folderId = req.params.folderId || null;
+  if (folderId === 'null') {
+    folderId = null;
+  }
+  //const userId = req.user.id; // Assuming user ID is available in req.user
+  console.log(folderId);
+console.log(req.user.id);
+  upload.array('files')(req, res, async (err) => {
+    if (err instanceof multer.MulterError) {
+      console.error('Multer error:', err);
+      return res.status(500).json({ error: 'Failed to upload files' });
+    } else if (err) {
+      console.error('Unknown error during upload:', err);
+      return res.status(500).json({ error: 'Failed to upload files' });
+    }
+
+    console.log(req.files); // Check if req.files is populated correctly
+
+    try {
+      const files = req.files.map(file => ({
+        name: file.originalname,
+        path: file.path,
+        size: file.size,
+        folder_id: folderId,
+        user_id: req.user.id
+      }));
+
+      await File.bulkCreate(files);
+
+      res.status(200).json({ message: 'Files uploaded and saved successfully' });
+    } catch (dbError) {
+      console.error('Failed to save files in the database:', dbError);
+      res.status(500).json({ error: 'Failed to save files in the database' });
     }
   });
-  
-  const upload = multer({ storage });
-  
-  // Upload files to a folder
-  exports.uploadFiles = (req, res) => {
-    // Use `upload.array` or `upload.single` based on your FormData structure
-    upload.array('files')(req, res, (err) => {
-      if (err instanceof multer.MulterError) {
-        console.error('Multer error:', err);
-        return res.status(500).json({ error: 'Failed to upload files' });
-      } else if (err) {
-        console.error('Unknown error during upload:', err);
-        return res.status(500).json({ error: 'Failed to upload files' });
-      }
-  
-      console.log(req.files); // Check if req.files is populated correctly
-      res.status(200).json({ message: 'Files uploaded successfully' });
-    });
+};
+
+  exports.fetchFiles = async (req, res) => {
+    try {
+        let folderId = req.params.folderId || null;
+        if (folderId === 'null') {
+          folderId = null;
+        }        const files = await File.findAll({ where: { folder_id: folderId } }); // Adjust according to your schema
+        console.log(files);
+        res.json(files);
+    } catch (error) {
+        console.error('Failed to fetch files:', error);
+        res.status(500).json({ error: 'Failed to fetch files' });
+    }
   };
