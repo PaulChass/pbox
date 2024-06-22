@@ -23,6 +23,8 @@ const Register = () => {
       <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required />
       <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required />
       <button type="submit">Register</button>
+      <p>You already have an account ?    <a style={{marginLeft:'20px'}} href="/Login">Sign in</a></p>
+
     </form>
   );
 };

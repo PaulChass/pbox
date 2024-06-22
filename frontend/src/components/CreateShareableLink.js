@@ -39,14 +39,14 @@ const CreateShareableLink = ({ folderId }) => {
     <div>
       <h2>Create Shareable Link</h2>
       <form onSubmit={handleSubmit}>
-        {/* 
+        
           <div> <label htmlFor="type">Type:</label>
               <select id="type" value={type} onChange={(e) => setType(e.target.value)}>
               <option value="private">Private</option>
               <option value="public">Public</option>
               </select>
-          </div
-        */}
+          </div>
+       
 
         <div>
 

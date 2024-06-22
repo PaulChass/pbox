@@ -2,6 +2,7 @@ const express = require('express');
 const { uploadFiles } = require('../controllers/shareableLinkController');
 const router = express.Router();
 const authenticate = require('../middleware/auth');
+const checkShareableLinkType = require('../middleware/checkShareableLinkType');
 const ShareableLink = require('../models/ShareableLink');
 const crypto = require('crypto');
 const Folder = require('../models/Folder');
@@ -30,18 +31,16 @@ router.post('/create', authenticate, async (req, res) => {
 });
 
 // Route to retrieve folders based on shareable link token
-router.get('/:token', async (req, res) => {
+router.get('/:token', checkShareableLinkType, async (req, res) => {
   const token = req.params.token;
   try {
     // Find the shareable link in the database
     const shareableLink = await ShareableLink.findOne({ where: { token } });
-
+    
+    console.log(shareableLink.type);
     if (!shareableLink) {
       return res.status(404).json({ error: 'Shareable link not found' });
     }
-
-
-
 
     // Assuming the link is valid and not expired, retrieve folders associated with folderId
     const folder = await Folder.findOne({ where: { id: shareableLink.folderId } });
