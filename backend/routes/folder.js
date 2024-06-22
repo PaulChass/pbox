@@ -19,7 +19,7 @@ router.post('/:folderId/upload', authenticate , uploadFiles);
 router.get('/:folderId/files', authenticate, fetchFiles);
 
 // Download folder
-router.get('/:folderId/download', authenticate, downloadFolder);
+router.get('/:folderId/download', downloadFolder);
 
 
 

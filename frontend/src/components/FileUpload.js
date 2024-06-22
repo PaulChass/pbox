@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const FileUpload = ({ folderId , setUpdated, linkToken }) => {
+const FileUpload = ({ folderId , setUpdated, linkToken, setIsRootFolder }) => {
   const [selectedFiles, setSelectedFiles] = useState(null);
   const token = localStorage.getItem('token');
 
@@ -18,9 +18,12 @@ const FileUpload = ({ folderId , setUpdated, linkToken }) => {
     }
 
     formData.append( 'email', localStorage.getItem('email'));
+    formData.append( 'folderId', folderId);
+
+    
     let postUrl = 'http://localhost:5000/api/folders/'+folderId+'/upload';
     if(linkToken!==undefined) {
-      postUrl = "http://localhost:5000/shareable-links/"+linkToken+"/upload";
+      postUrl = "http://localhost:5000/api/shareable-links/"+linkToken+"/upload";
    }
     try {
       await axios.post(postUrl, formData, {
@@ -31,8 +34,12 @@ const FileUpload = ({ folderId , setUpdated, linkToken }) => {
         withCredentials: true
       });
       alert('Files uploaded successfully');
-      
       setUpdated(true);
+
+      if(linkToken!==undefined) {
+      setIsRootFolder(true);
+    }
+
     } catch (error) {
       console.error('Error uploading files:', error);
       alert('Error uploading files');

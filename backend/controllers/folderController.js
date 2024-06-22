@@ -23,7 +23,7 @@ exports.getFolders = async (req, res) => {
     } catch (error) {
         console.log(Folder);
         console.error('Failed to fetch folders:', error.message);
-        res.status(500).json({ error: 'Failed to fetch folders' });
+        res.statuus(500).json({ error: 'Failed to fetch folders' });
     }
 };
 
@@ -51,7 +51,7 @@ exports.createFolder = async (req, res) => {
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const folderId = req.params.folderId; // Get folderId from request params
-    const uploadPath = path.join(__dirname, '..', 'uploads', folderId);
+    const uploadPath = path.join(__dirname, '..', 'uploads');
 
     // Ensure the folder exists
     if (!fs.existsSync(uploadPath)) {
@@ -72,7 +72,6 @@ exports.uploadFiles = (req, res) => {
   
   //const userId = req.user.id; // Assuming user ID is available in req.user
   console.log(folderId);
-console.log(req.user.id);
   upload.array('files')(req, res, async (err) => {
     if (err instanceof multer.MulterError) {
       console.error('Multer error:', err);
@@ -82,7 +81,6 @@ console.log(req.user.id);
       return res.status(500).json({ error: 'Failed to upload files' });
     }
 
-    console.log(req.files); // Check if req.files is populated correctly
 
     try {
       const files = req.files.map(file => ({
@@ -114,11 +112,11 @@ console.log(req.user.id);
     }
   };
 
-  const addFolderToArchive = async (archive, folder, baseFolderPath, baseArchivePath, userId) => {
+  const addFolderToArchive = async (archive, folder, baseFolderPath, baseArchivePath) => {
     console.log(`Adding folder to archive: ${baseFolderPath}`);
     
     // Add files in the current folder to the archive
-    const files = await File.findAll({ where: { folder_id: folder.id, user_id: userId } });
+    const files = await File.findAll({ where: { folder_id: folder.id } });
     for (const file of files) {
         const filePath = path.join(baseFolderPath, file.name);
         console.log(`Checking file path: ${filePath}`);
@@ -132,12 +130,12 @@ console.log(req.user.id);
     }
 
     // Add subfolders recursively to the archive
-    const subfolders = await Folder.findAll({ where: { parent_id: folder.id, user_id: userId } });
+    const subfolders = await Folder.findAll({ where: { parent_id: folder.id } });
     for (const subfolder of subfolders) {
         const subfolderPath = path.join(baseFolderPath, '..', subfolder.id.toString());
         const subfolderArchivePath = path.join(baseArchivePath, subfolder.name);
         console.log(`Adding subfolder to archive: ${subfolderPath} as ${subfolderArchivePath}`);
-        await addFolderToArchive(archive, subfolder, subfolderPath, subfolderArchivePath, userId);
+        await addFolderToArchive(archive, subfolder, subfolderPath, subfolderArchivePath);
     }
 };
 
@@ -163,9 +161,9 @@ exports.downloadFolder = async (req, res) => {
 
       archive.pipe(res);
 
-      const folderPath = path.join(__dirname, '..', 'uploads', folderId.toString());
+      const folderPath = path.join(__dirname, '..', 'uploads');
       console.log(`Starting to add folder to archive: ${folderPath}`);
-      await addFolderToArchive(archive, folder, folderPath, folder.name, req.user.id);
+      await addFolderToArchive(archive, folder, folderPath, folder.name);
 
       await archive.finalize();
   } catch (error) {

@@ -1,12 +1,11 @@
 const express = require('express');
-const upload = require('../controllers/shareableLinkController');
+const { uploadFiles } = require('../controllers/shareableLinkController');
 const router = express.Router();
 const authenticate = require('../middleware/auth');
 const ShareableLink = require('../models/ShareableLink');
 const crypto = require('crypto');
 const Folder = require('../models/Folder');
 const File = require('../models/File');
-const { getFolders, createFolder, uploadFiles, fetchFiles, downloadFolder } = require('../controllers/folderController');
 
 
 // Create shareable link
@@ -76,7 +75,7 @@ router.get('/:token', async (req, res) => {
   }
 });
 
-router.post('/:token/upload', authenticate, uploadFiles);
+router.post('/:token/upload', uploadFiles);
 
 
 

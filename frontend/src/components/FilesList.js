@@ -24,7 +24,6 @@ const FilesList = ({ folderId, linkToken }) => {
              if(linkToken!==undefined) {
                 posturl = "http://localhost:5000/shareable-links/"+folderId+"/files";
              }
-             console.log(posturl);
             const response = await axios.get(posturl, {
                 headers: {
                     'Content-Type': 'multipart/form-data',

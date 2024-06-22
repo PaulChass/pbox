@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 
-const DownloadFolder = ({ folderId }) => {
+const DownloadFolder = ({ folderId, noText }) => {
 
 
     const handleDownload = async () => {
@@ -26,7 +26,7 @@ const DownloadFolder = ({ folderId }) => {
     };
 
     return (
-        <button onClick={handleDownload}>Download This Folder</button>
+        <button onClick={handleDownload}>{ !noText && " Download This Folder"}</button>
     );
 };
 

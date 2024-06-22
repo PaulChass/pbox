@@ -67,7 +67,7 @@ const FolderTree = () => {
             .map(folder => (
                 <li key={folder.id}>
                     <button onClick={() => handleClick(folder.id)} >{folder.name}
-                    </button>
+                    </button><DownloadFolder folderId={folder.id} noText={true}/>
                 </li>
             ));
     };
@@ -84,7 +84,7 @@ const FolderTree = () => {
             <CreateFolder setFolders={setFolders} folderId={folderId} />
 
                 </ul>
-                <FileList folderId={folderId} />
+                <FileList folderId={folderId}/>
                 {isNotRootFolder &&<DownloadFolder folderId={folderId||null} />} 
 
                 {isNotRootFolder && <CreateShareableLink folderId={folderId}/>}

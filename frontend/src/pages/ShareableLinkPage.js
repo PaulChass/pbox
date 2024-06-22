@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-import FileList from '../components/FilesList';
+import DownloadFolder from '../components/DownloadFolder';
 import FileUpload from '../components/FileUpload';
-import FilesList from '../components/FilesList';
 
 
 const ShareableLinkPage = ({ }) => {
@@ -19,8 +18,6 @@ const ShareableLinkPage = ({ }) => {
     fetchFolder();
   }, [token, updated]);
 
-
-
   const fetchFolder = async () => {
     try {
       const response = await axios.get(`http://localhost:5000/api/shareable-links/${token}`);
@@ -35,8 +32,6 @@ const ShareableLinkPage = ({ }) => {
       // Handle error (e.g., show error message)
     }
   };
-
-
 
   const renderFolders = (folders) => {
     return folders
@@ -77,11 +72,12 @@ const ShareableLinkPage = ({ }) => {
   return (
     <div>
       <h2>Shared Folder</h2>
+      <h3>{thisFolder.name}</h3>
       { !isRootFolder && <button onClick={() => handleBackClick()}>...</button>}
       <ul>{renderFolders(folders)}</ul>
       <ul>{renderFiles(files)}</ul>
-
-      <ul key={thisFolder.name}>{thisFolder.name}-id:{thisFolder.id}</ul>
+      <FileUpload folderId={thisFolder.id}linkToken={token} setUpdated={setUpdated} setIsRootFolder={setIsRootFolder}/>
+      <DownloadFolder folderId={thisFolder.id}/>
     </div>
   );
 };
