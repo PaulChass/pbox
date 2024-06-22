@@ -1,10 +1,14 @@
-import React from 'react';
+import { React, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Register from './pages/Register';
 import Login from './pages/Login';
+import ShareableLinkPage from './pages/ShareableLinkPage';
+
 import FolderTree from './components/FolderTree';
 
 const App = () => {
+  const token = localStorage.getItem('token');
+
   return (
     <Router>
       <div>
@@ -13,6 +17,8 @@ const App = () => {
         <Routes>
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/shareable-link/:token" element={<ShareableLinkPage/>} />
+
         </Routes>
 
         {/* Additional components */}

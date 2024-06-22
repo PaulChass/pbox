@@ -26,7 +26,7 @@ const DownloadFolder = ({ folderId }) => {
     };
 
     return (
-        <button onClick={handleDownload}>Download Folder</button>
+        <button onClick={handleDownload}>Download This Folder</button>
     );
 };
 

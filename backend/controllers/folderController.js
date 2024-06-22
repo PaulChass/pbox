@@ -68,10 +68,8 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 exports.uploadFiles = (req, res) => {
-  let folderId = req.params.folderId || null;
-  if (folderId === 'null') {
-    folderId = null;
-  }
+  const folderId = req.params.folderId ;
+  
   //const userId = req.user.id; // Assuming user ID is available in req.user
   console.log(folderId);
 console.log(req.user.id);
@@ -107,11 +105,8 @@ console.log(req.user.id);
 
   exports.fetchFiles = async (req, res) => {
     try {
-        let folderId = req.params.folderId || null;
-        if (folderId === 'null') {
-          folderId = null;
-        }        const files = await File.findAll({ where: { folder_id: folderId , user_id: req.user.id} }); // Adjust according to your schema
-        console.log(files);
+        const folderId = req.params.folderId;
+             const files = await File.findAll({ where: { folder_id: folderId , user_id: req.user.id} }); // Adjust according to your schema
         res.json(files);
     } catch (error) {
         console.error('Failed to fetch files:', error);

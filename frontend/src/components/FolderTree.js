@@ -10,6 +10,7 @@ import CreateShareableLink from './CreateShareableLink';
 const FolderTree = () => {
     const [folders, setFolders] = useState([]);
     const [folderId, setFolderId] = useState(null);
+    
     const location = useLocation();
 
     const token = localStorage.getItem('token');
@@ -60,7 +61,6 @@ const FolderTree = () => {
 
 
 
-
     const renderFolders = (folders) => {
         return folders
             .filter(folder => folder.parent_id === folderId)
@@ -72,15 +72,25 @@ const FolderTree = () => {
             ));
     };
 
+    if (token == null){
+        return (<div><h2>My drive</h2>
+        <p>You need to Sign In to access your drive <a href='/login' style={{marginLeft:'10px',marginRight:'10px'}} >Sign in</a> <a href='/register'>Register</a></p></div>);
+    }else{
     return (
         <div>
-            <CreateFolder setFolders={setFolders} folderId={folderId} />
-            <h2>Folder Structure</h2>
+            <h2>My drive</h2>
             {isNotRootFolder && <button onClick={() => handleBackClick(folderId)}>...</button>}
-            <ul>{renderFolders(folders)}<DownloadFolder folderId={folderId} /><CreateShareableLink folderId={folderId}/></ul>
-            <FileList folderId={folderId} />
+            <ul>{renderFolders(folders)}
+            <CreateFolder setFolders={setFolders} folderId={folderId} />
+
+                </ul>
+                <FileList folderId={folderId} />
+                {isNotRootFolder &&<DownloadFolder folderId={folderId||null} />} 
+
+                {isNotRootFolder && <CreateShareableLink folderId={folderId}/>}
         </div>
     );
+    }
 };
 
 export default FolderTree;

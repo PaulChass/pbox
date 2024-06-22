@@ -4,50 +4,55 @@ import FileUpload from './FileUpload';
 import { useLocation } from 'react-router-dom';
 
 
-const FilesList = ({ folderId }) => {
+const FilesList = ({ folderId, linkToken }) => {
     const [files, setFiles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [updated, setUpdated] = useState(false);
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token');   
     const location = useLocation();
-
-
+    
+  
     useEffect(() => {
-        const fetchFiles = async () => {
-            try {
-                const response = await axios.get(`http://localhost:5000/api/folders/${folderId}/files`,{
-                   headers: {
-                        'Content-Type': 'multipart/form-data',
-                        'Authorization': `Bearer ${token}`
-                      },                
-                      withCredentials: true
-                    });
-                
-                setFiles(response.data);
-            } catch (err) {
-                setError(err);
-            } finally {
-                setLoading(false);
-                setUpdated(false);
-            }
-        };
-
         fetchFiles();
-    }, [folderId,updated, location.pathname]);
+    }, [folderId, location.pathname, updated]);
 
-    if (loading) return <p>Loading files...</p>;
-    if (error) return <p>Error loading files: {error.message}</p>;
 
+    const fetchFiles = async () => {
+        try {
+            let posturl ="http://localhost:5000/api/folders/"+folderId+"/files";
+             if(linkToken!==undefined) {
+                posturl = "http://localhost:5000/shareable-links/"+folderId+"/files";
+             }
+             console.log(posturl);
+            const response = await axios.get(posturl, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}`
+                },
+                withCredentials: true
+            });
+
+            setFiles(response.data);
+        } catch (err) {
+            setError(err);
+        } finally {
+            setLoading(false);
+            setUpdated(false);
+        }
+    };
+
+    //if (loading) return <p>Loading files...</p>;
+    //if (error) return <p>You need to be logged in to access your drive {linkToken}<a style={{ marginLeft: '10px', marginRight: '10px' }} href='http://localhost:3000/login'>Login</a><a href='http://localhost:3000/register'>Register</a></p>;
     return (
         <div>
-            <FileUpload folderId={folderId} setUpdated={setUpdated}/>
-            <h2>Files in Folder {folderId}</h2>
             <ul>
                 {files.map(file => (
                     <li key={file.id}>{file.name}</li>
                 ))}
             </ul>
+            <p>{linkToken}</p>
+            <FileUpload folderId={folderId} setUpdated={setUpdated} linkToken={linkToken} />
         </div>
     );
 };

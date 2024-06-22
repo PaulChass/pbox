@@ -35,7 +35,6 @@ const CreateFolder = ({ setFolders, folderId }) => {
 
     return (
         <div>
-            <h2>Create Folder</h2>
             <input
                 type="text"
                 value={folderName}

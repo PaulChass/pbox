@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 const CreateShareableLink = ({folderId}) => {
+  const [shareableLink, setShareableLink] = useState(null);
   const [type, setType] = useState('private'); // Default to private link
   const [expiresAt, setExpiresAt] = useState('');
   const token = localStorage.getItem('token');   
@@ -24,7 +25,8 @@ const CreateShareableLink = ({folderId}) => {
         folderId,
         expiresAt: expiresAt || null, // Optionally send expiration date if provided
       }, config);
-      
+      setShareableLink(response.data.link); // Assuming response.data.link contains the link object
+
       console.log('Shareable link created:', response.data.link);
       // Optionally handle success, e.g., show a success message or redirect
     } catch (error) {
@@ -56,7 +58,15 @@ const CreateShareableLink = ({folderId}) => {
             onChange={(e) => setExpiresAt(e.target.value)}
           />
         </div>
-        <button type="submit">Create Link</button>
+        <button type="submit">Generate Link</button>
+        {shareableLink && (
+        <div>
+          <p>Shareable Link:</p>
+          <a href={`http://localhost:3000/shareable-link/${shareableLink.token}`} target="_blank" rel="noopener noreferrer">
+            Click to Access
+          </a>
+        </div>
+      )}
       </form>
     </div>
   );

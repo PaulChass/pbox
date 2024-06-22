@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const FileUpload = ({ folderId , setUpdated }) => {
+const FileUpload = ({ folderId , setUpdated, linkToken }) => {
   const [selectedFiles, setSelectedFiles] = useState(null);
   const token = localStorage.getItem('token');
 
@@ -18,9 +18,12 @@ const FileUpload = ({ folderId , setUpdated }) => {
     }
 
     formData.append( 'email', localStorage.getItem('email'));
-    
+    let postUrl = 'http://localhost:5000/api/folders/'+folderId+'/upload';
+    if(linkToken!==undefined) {
+      postUrl = "http://localhost:5000/shareable-links/"+linkToken+"/upload";
+   }
     try {
-      await axios.post(`http://localhost:5000/api/folders/${folderId}/upload`, formData, {
+      await axios.post(postUrl, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`
@@ -38,7 +41,6 @@ const FileUpload = ({ folderId , setUpdated }) => {
 
   return (
     <form onSubmit={handleUpload}>
-      <h2>Upload File</h2>
       <input type="file"  onChange={handleFileChange} multiple />
       <button type="submit">Upload</button>
     </form>
