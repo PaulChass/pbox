@@ -66,7 +66,30 @@ exports.uploadFiles = async (req, res) => {
     });
 }
 
+// Create a new folder
+exports.createFolder = async (req, res) => {
+    const { name, parent_id, email } = req.body;
+    const user = await User.findOne({ where: { email } });
+    let userId =null ;
+        if(req.user !== undefined){
+            userId= req.user.id
+        }
+    
+    try {
+        const newFolder = await Folder.create({
+            name,
+            parent_id,
+            user_id: user.dataValues.id
+        });
+        res.status(201).json(newFolder);
+       
 
+    } catch (error) {
+        console.error('Failed to create folder:', error.message);
+        res.status(500).json({ error: 'Failed to create folder' });
+    }
+    
+};
 
 exports.downloadFolder = async (req, res) => {
     try {

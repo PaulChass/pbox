@@ -76,6 +76,8 @@ router.get('/:token', checkShareableLinkType, async (req, res) => {
 
 router.post('/:token/upload', uploadFiles);
 
+//router.post('/',checkShareableLinkType, createFolder);
+
 
 
 module.exports = router;
