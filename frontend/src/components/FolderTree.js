@@ -10,11 +10,11 @@ import CreateShareableLink from './CreateShareableLink';
 const FolderTree = () => {
     const [folders, setFolders] = useState([]);
     const [folderId, setFolderId] = useState(null);
-    
+    const [loggedIn,setLoggedIn] = useState(false);
     const location = useLocation();
-
+    
     const token = localStorage.getItem('token');
-
+    const email = localStorage.getItem('email');
     useEffect(() => {
         fetchFolders();
     }, [folderId, location.pathname]);   
@@ -28,6 +28,8 @@ const FolderTree = () => {
                 withCredentials: true // If sending cookies is necessary
             });
             setFolders(response.data);
+            setLoggedIn(true);
+            
         } catch (error) {
             console.error('Error fetching folders:', error);
         }
@@ -60,19 +62,18 @@ const FolderTree = () => {
     }
 
 
-
     const renderFolders = (folders) => {
         return folders
             .filter(folder => folder.parent_id === folderId)
             .map(folder => (
                 <li key={folder.id}>
                     <button onClick={() => handleClick(folder.id)} >{folder.name}
-                    </button><DownloadFolder folderId={folder.id} noText={true}/>
+                    </button>
                 </li>
             ));
     };
-
-    if (token == null){
+    
+    if (!loggedIn){
         return (<div><h2>My drive</h2>
         <p>You need to Sign In to access your drive <a href='/login' style={{marginLeft:'10px',marginRight:'10px'}} >Sign in</a> <a href='/register'>Register</a></p></div>);
     }else{
@@ -84,10 +85,10 @@ const FolderTree = () => {
             <CreateFolder setFolders={setFolders} folderId={folderId} />
 
                 </ul>
-                <FileList folderId={folderId}/>
+                <FileList folderId={folderId} isNotRootFolder={isNotRootFolder}/>
                 {isNotRootFolder &&<DownloadFolder folderId={folderId||null} />} 
-
                 {isNotRootFolder && <CreateShareableLink folderId={folderId}/>}
+            
         </div>
     );
     }

@@ -4,7 +4,7 @@ import FileUpload from './FileUpload';
 import { useLocation } from 'react-router-dom';
 
 
-const FilesList = ({ folderId, linkToken }) => {
+const FilesList = ({ folderId, linkToken, isNotRootFolder }) => {
     const [files, setFiles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -51,7 +51,7 @@ const FilesList = ({ folderId, linkToken }) => {
                 ))}
             </ul>
             <p>{linkToken}</p>
-            <FileUpload folderId={folderId} setUpdated={setUpdated} linkToken={linkToken} />
+            {isNotRootFolder && <FileUpload folderId={folderId} setUpdated={setUpdated} linkToken={linkToken} />}
         </div>
     );
 };

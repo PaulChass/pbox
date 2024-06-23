@@ -15,7 +15,7 @@ const Login = () => {
       alert('Login successful');
       localStorage.setItem('email', email); // Store username in localStorage
       localStorage.setItem('token', response.data.token);
-      if(localStorage.getItem('tokenUrl')!==undefined)
+      if(localStorage.getItem('tokenUrl')!==undefined && localStorage.getItem('tokenUrl') !== '')
         {
           window.location.replace('http://localhost:3000/shareable-link/'+localStorage.getItem('tokenUrl'))
         }

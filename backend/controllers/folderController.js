@@ -71,7 +71,6 @@ exports.uploadFiles = (req, res) => {
   const folderId = req.params.folderId ;
   
   //const userId = req.user.id; // Assuming user ID is available in req.user
-  console.log(folderId);
   upload.array('files')(req, res, async (err) => {
     if (err instanceof multer.MulterError) {
       console.error('Multer error:', err);
@@ -104,7 +103,7 @@ exports.uploadFiles = (req, res) => {
   exports.fetchFiles = async (req, res) => {
     try {
         const folderId = req.params.folderId;
-             const files = await File.findAll({ where: { folder_id: folderId , user_id: req.user.id} }); // Adjust according to your schema
+             const files = await File.findAll({ where: { folder_id: folderId } }); // Adjust according to your schema
         res.json(files);
     } catch (error) {
         console.error('Failed to fetch files:', error);

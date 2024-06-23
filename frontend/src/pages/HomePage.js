@@ -4,6 +4,7 @@ import FolderTree from '../components/FolderTree';
 
 const HomePage = ({ }) => {
     const email = localStorage.getItem('email');
+    const tokenUrl = localStorage.setItem('tokenUrl', '');
 
 
 return (<div>

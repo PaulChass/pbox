@@ -3,6 +3,9 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import DownloadFolder from '../components/DownloadFolder';
 import FileUpload from '../components/FileUpload';
+import FolderTree from '../components/FolderTree';
+import CreateFolder from '../components/CreateFolder';
+
 
 
 const ShareableLinkPage = ({ }) => {
@@ -14,8 +17,9 @@ const ShareableLinkPage = ({ }) => {
   const [updated, setUpdated] = useState(false);
   const [isRootFolder, setIsRootFolder] = useState(true);
 
+
   localStorage.setItem('tokenUrl', token);
-  let authToken = localStorage.getItem('token');
+  const authToken = localStorage.getItem('token');
 
   useEffect(() => {
     fetchFolder();
@@ -29,7 +33,7 @@ const ShareableLinkPage = ({ }) => {
         },
         withCredentials: true
       };
-      const response = await axios.get(`http://localhost:5000/api/shareable-links/${token}`,config);
+      const response = await axios.get(`http://localhost:5000/api/shareable-links/${token}`, config);
       setType(response.data.type);
       setThisFolder(response.data.folder);
       setFolders(response.data.folders);
@@ -38,7 +42,6 @@ const ShareableLinkPage = ({ }) => {
 
     } catch (error) {
       console.error('Failed to fetch folders:', error);
-      // Handle error (e.g., show error message)
     }
   };
 
@@ -76,7 +79,7 @@ const ShareableLinkPage = ({ }) => {
     };
     ;
   }
-
+  console.log(localStorage);  
   let empty = thisFolder.length == 0;
   return (
     <div>
@@ -88,9 +91,15 @@ const ShareableLinkPage = ({ }) => {
       <h3>{thisFolder.name}</h3>
       {!isRootFolder && <button onClick={() => handleBackClick()}>...</button>}
       <ul>{renderFolders(folders)}</ul>
+      {!empty && <CreateFolder setFolders={setFolders} folderId={thisFolder.id} />}
       <ul>{renderFiles(files)}</ul>
       {!empty && <FileUpload folderId={thisFolder.id} linkToken={token} setUpdated={setUpdated} setIsRootFolder={setIsRootFolder} />}
       {!empty && <DownloadFolder folderId={thisFolder.id} />}
+     
+        <FolderTree />
+      
+
+
     </div>
   );
 };
