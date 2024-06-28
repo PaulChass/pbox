@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api , { baseUrl } from '../api.js'; // Adjust the path according to your file structure
 import CreateFolder from '../components/CreateFolder';
 import FileList from '../components/FilesList';
 import { useLocation } from 'react-router-dom';
@@ -10,6 +10,7 @@ import CreateShareableLink from './CreateShareableLink';
 const FolderTree = () => {
     const [folders, setFolders] = useState([]);
     const [folderId, setFolderId] = useState(null);
+    const [folderName, setFolderName] = useState('root');
     const [loggedIn,setLoggedIn] = useState(false);
     const location = useLocation();
     
@@ -21,7 +22,7 @@ const FolderTree = () => {
 
     const fetchFolders = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/folders/${folderId}`, {
+            const response = await api.get(`${baseUrl}/folders/${folderId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 },
@@ -38,6 +39,7 @@ const FolderTree = () => {
 
     const handleClick = (id) => {
         setFolderId(id);
+        setFolderName(folders.find(folder => folder.id === id).name);
     };
 
     const findParentFolderId = (folders, id) => {
@@ -80,6 +82,7 @@ const FolderTree = () => {
     return (
         <div>
             <h2>My drive</h2>
+            <h3>{folderName}</h3>
             {isNotRootFolder && <button onClick={() => handleBackClick(folderId)}>...</button>}
             <ul>{renderFolders(folders)}
             <CreateFolder setFolders={setFolders} folderId={folderId} />

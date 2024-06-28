@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api , { baseUrl } from '../api.js'; // Adjust the path according to your file structure
 import { useParams } from 'react-router-dom';
 import DownloadFolder from '../components/DownloadFolder';
 import FileUpload from '../components/FileUpload';
@@ -33,7 +33,7 @@ const ShareableLinkPage = ({ }) => {
         },
         withCredentials: true
       };
-      const response = await axios.get(`http://localhost:5000/api/shareable-links/${token}`, config);
+      const response = await api.get(`${baseUrl}/shareable-links/${token}`, config);
       setType(response.data.type);
       setThisFolder(response.data.folder);
       setFolders(response.data.folders);

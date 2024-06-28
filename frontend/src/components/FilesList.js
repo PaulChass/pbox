@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api , { baseUrl } from '../api.js'; // Adjust the path according to your file structure
 import FileUpload from './FileUpload';
 import { useLocation } from 'react-router-dom';
+import '../css/FileList.css';
 
 
 const FilesList = ({ folderId, linkToken, isNotRootFolder }) => {
@@ -20,11 +21,11 @@ const FilesList = ({ folderId, linkToken, isNotRootFolder }) => {
 
     const fetchFiles = async () => {
         try {
-            let posturl ="http://localhost:5000/api/folders/"+folderId+"/files";
-             if(linkToken!==undefined) {
-                posturl = "http://localhost:5000/shareable-links/"+folderId+"/files";
+            let posturl = `${baseUrl}/folders/${folderId}/files`;
+            if(linkToken!==undefined) {
+                posturl = `${baseUrl}/shareable-links/${folderId}/files`;
              }
-            const response = await axios.get(posturl, {
+            const response = await api.get(posturl, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'Authorization': `Bearer ${token}`

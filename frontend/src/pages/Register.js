@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import api , { baseUrl } from '../api.js'; // Adjust the path according to your file structure
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -11,14 +11,14 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/auth/register', { username, email, password });
-      alert('User registered successfully');
-      if(localStorage.getItem('tokenUrl')!==undefined)
-        {
+      await api.post(`${baseUrl}/auth/register`, { username, email, password });      alert('User registered successfully');      
+     
+      if(localStorage.getItem('tokenUrl')) {
           window.location.replace('http://localhost:3000/shareable-link/'+localStorage.getItem('tokenUrl'))
         }
       
-      navigate('/');
+      else{navigate('/')};
+       
 
     } catch (error) {
       console.error(error);

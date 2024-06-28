@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api , { baseUrl } from '../api.js'; // Adjust the path according to your file structure
 
 const CreateFolder = ({ setFolders, folderId }) => {
     const [folderName, setFolderName] = useState('');
@@ -20,7 +20,7 @@ const CreateFolder = ({ setFolders, folderId }) => {
                 withCredentials: true
             };
 
-            const response = await axios.post('http://localhost:5000/api/folders/', requestData, config);
+            const response = await api.post(`${baseUrl}/folders/`, requestData, config);
             console.log('Folder created:', response.data);
 
             // Clear input fields after successful creation

@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api , { baseUrl } from '../api.js'; // Adjust the path according to your file structure
 
 const FileUpload = ({ folderId , setUpdated, linkToken, setIsRootFolder }) => {
   const [selectedFiles, setSelectedFiles] = useState(null);
   const token = localStorage.getItem('token');
-
+  const [isLoading, setIsLoading] = useState(false); 
   const handleFileChange = (e) => {
     setSelectedFiles(e.target.files);
   };
 
   const handleUpload = async (e) => {
     e.preventDefault();
+    setIsLoading(true); // Step 3: Set loading to true before API call
     const formData = new FormData();
     
     for (let i = 0; i < selectedFiles.length; i++) {
@@ -21,12 +22,12 @@ const FileUpload = ({ folderId , setUpdated, linkToken, setIsRootFolder }) => {
     formData.append( 'folderId', folderId);
 
     
-    let postUrl = 'http://localhost:5000/api/folders/'+folderId+'/upload';
+    let postUrl = `${baseUrl}/folders/${folderId}/upload`;
     if(linkToken!==undefined) {
-      postUrl = "http://localhost:5000/api/shareable-links/"+linkToken+"/upload";
+      postUrl = `${baseUrl}/shareable-links/${linkToken}/upload`;
    }
     try {
-      await axios.post(postUrl, formData, {
+      await api.post(postUrl, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`
@@ -43,14 +44,22 @@ const FileUpload = ({ folderId , setUpdated, linkToken, setIsRootFolder }) => {
     } catch (error) {
       console.error('Error uploading files:', error);
       alert('Error uploading files');
+    } finally {
+      setIsLoading(false); 
     }
   };
 
   return (
-    <form onSubmit={handleUpload}>
-      <input type="file"  onChange={handleFileChange} multiple />
-      <button type="submit">Upload</button>
-    </form>
+    <div>
+    {isLoading ? ( 
+      <span>Loading... Please wait</span>
+    ) : (
+      <form onSubmit={handleUpload}>
+        <input type="file" multiple onChange={handleFileChange} />
+        <button type="submit">Upload</button>
+      </form>
+    )}
+  </div>
   );
 };
 

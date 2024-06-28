@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api , { baseUrl } from '../api.js'; // Adjust the path according to your file structure
 
 const CreateShareableLink = ({ folderId }) => {
   const [shareableLink, setShareableLink] = useState(null);
@@ -19,7 +19,7 @@ const CreateShareableLink = ({ folderId }) => {
       };
 
       // Send request to backend to create shareable link
-      const response = await axios.post('http://localhost:5000/api/shareable-links/create', {
+      const response = await api.post(`${baseUrl}/shareable-links/create`, {
         email: localStorage.getItem('email'),
         type,
         folderId,
@@ -64,7 +64,7 @@ const CreateShareableLink = ({ folderId }) => {
         {shareableLink && (
           <div>
             <p>Shareable Link:</p>
-            <a href={`http://localhost:3000/shareable-link/${shareableLink.token}`} target="_blank" rel="noopener noreferrer">
+            <a href={`https://pbox.paulchasseuil.fr/shareable-link/${shareableLink.token}`} target="_blank" rel="noopener noreferrer">
               Click to Access
             </a>
           </div>

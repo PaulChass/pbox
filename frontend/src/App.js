@@ -4,6 +4,7 @@ import Register from './pages/Register';
 import Login from './pages/Login';
 import ShareableLinkPage from './pages/ShareableLinkPage';
 import HomePage from './pages/HomePage';
+import api from './api.js';
 
 
 const App = () => {
