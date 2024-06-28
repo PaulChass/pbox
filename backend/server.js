@@ -4,6 +4,7 @@ const cors = require('cors');
 const sequelize = require('./config/db');
 const authRoutes = require('./routes/auth');
 const folderRoutes = require('./routes/folder');
+const filesRoutes = require('./routes/files');
 const shareableLinkRoutes = require('./routes/shareableLink');
 
 
@@ -27,6 +28,7 @@ app.options('*', cors());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/folders', folderRoutes);
+app.use('/api/files', filesRoutes);
 app.use('/api/shareable-links', shareableLinkRoutes );
 
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api , { baseUrl } from '../api.js'; // Adjust the path according to your file structure
 import FileUpload from './FileUpload';
+import DownloadFile from './DownloadFile';
 import { useLocation } from 'react-router-dom';
 import '../css/FileList.css';
 
@@ -12,7 +13,8 @@ const FilesList = ({ folderId, linkToken, isNotRootFolder }) => {
     const [updated, setUpdated] = useState(false);
     const token = localStorage.getItem('token');   
     const location = useLocation();
-    
+    const [isDownloading, setIsDownloading] = useState(false);
+
   
     useEffect(() => {
         fetchFiles();
@@ -48,7 +50,10 @@ const FilesList = ({ folderId, linkToken, isNotRootFolder }) => {
         <div>
             <ul>
                 {files.map(file => (
-                    <li key={file.id}>{file.name}</li>
+                    <li key={file.id}>
+                        {file.name}
+                        <DownloadFile file={file} />
+                    </li>
                 ))}
             </ul>
             <p>{linkToken}</p>
