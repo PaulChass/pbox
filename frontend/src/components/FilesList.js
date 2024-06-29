@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import api , { baseUrl } from '../api.js'; // Adjust the path according to your file structure
 import FileUpload from './FileUpload';
 import DownloadFile from './DownloadFile';
+import DeleteFile from './DeleteFile';
+import RenameFile from './RenameFile';
 import { useLocation } from 'react-router-dom';
 import '../css/FileList.css';
 
@@ -52,7 +54,9 @@ const FilesList = ({ folderId, linkToken, isNotRootFolder }) => {
                 {files.map(file => (
                     <li key={file.id}>
                         {file.name}
-                        <DownloadFile file={file} />
+                        <RenameFile fileId={file.id} setFiles={setFiles} />
+                        <DownloadFile file={file.id} />
+                        <DeleteFile fileId={file.id} setFiles={setFiles} />
                     </li>
                 ))}
             </ul>

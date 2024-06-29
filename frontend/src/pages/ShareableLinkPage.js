@@ -5,7 +5,8 @@ import DownloadFolder from '../components/DownloadFolder';
 import FileUpload from '../components/FileUpload';
 import FolderTree from '../components/FolderTree';
 import CreateFolder from '../components/CreateFolder';
-
+import DownloadFile from '../components/DownloadFile';
+import DeleteFile from '../components/DeleteFile.js';
 
 
 const ShareableLinkPage = ({ }) => {
@@ -60,7 +61,11 @@ const ShareableLinkPage = ({ }) => {
     return files
       .filter(file => file.folder_id === thisFolder.id)
       .map(file => (
-        <li key={file.id}>{file.name}</li>
+        <li key={file.id}>{file.name}
+                                <DownloadFile file={file.id} />
+                                <DeleteFile fileId={file.id} setFiles={setFiles} />
+                                </li>
+        
       ));
   };
 

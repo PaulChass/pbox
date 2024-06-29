@@ -171,3 +171,64 @@ exports.downloadFolder = async (req, res) => {
   }
 };
 
+
+const deleteRecursively = async (folderId) => {
+  const files = await File.findAll({ where: { folder_id: folderId } });
+
+  for (const file of files) {
+    console.log(`Deleting file: ${file.path}`);
+    try {
+      // Properly await the promise-based unlink function
+      await fs.unlink(file.path, (err) => { if (err) throw err; });
+    } catch (err) {
+      console.error('Error deleting the file from the file system:', err);
+      throw err; // Rethrow or handle as needed
+    }
+
+    // Delete the file record from the database
+    await file.destroy();
+  }
+
+  const subfolders = await Folder.findAll({ where: { parent_id: folderId } });
+  for (const subfolder of subfolders) {
+    await deleteRecursively(subfolder.id);
+  }
+
+  // Delete the folder itself after its contents have been cleared
+  const folder = await Folder.findByPk(folderId);
+  if (folder) {
+    await folder.destroy();
+  }
+};
+
+// Adjust the exports.deleteFolder function to use deleteRecursively for a complete cleanup
+exports.deleteFolder = async (req, res) => {
+  const folderId = req.params.folderId;
+  try {
+    await deleteRecursively(folderId); // Use the revised recursive deletion
+    res.status(200).json({ message: 'Folder deleted successfully' });
+  } catch (error) {
+    console.error('Failed to delete folder:', error);
+    res.status(500).json({ error: 'Failed to delete folder' });
+  }
+};
+
+exports.renameFolder = async (req, res) => {
+  const folderId = req.params.folderId;
+  const { name } = req.body;
+
+  try {
+      const folder = await Folder.findByPk(folderId);
+      if (!folder) {
+          return res.status(404).send('Folder not found');
+      }
+
+      folder.name = name;
+      await folder.save();
+
+      res.status(200).json({ message: 'Folder renamed successfully' });
+  } catch (error) {
+      console.error('Failed to rename folder:', error);
+      res.status(500).json({ error: 'Failed to rename folder' });
+  }
+}

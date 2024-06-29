@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import api , { baseUrl } from '../api.js'; // Adjust the path according to your file structure
 
-const CreateShareableLink = ({ folderId }) => {
+const CreateShareableLink = ({ folderId, folderName }) => {
   const [shareableLink, setShareableLink] = useState(null);
   const [type, setType] = useState('private'); // Default to private link
   const [expiresAt, setExpiresAt] = useState('');
@@ -37,7 +37,7 @@ const CreateShareableLink = ({ folderId }) => {
 
   return (
     <div>
-      <h2>Create Shareable Link</h2>
+      <h2>Create Shareable Link for {folderName}</h2>
       <form onSubmit={handleSubmit}>
         
           <div> <label htmlFor="type">Type:</label>
