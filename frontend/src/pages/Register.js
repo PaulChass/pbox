@@ -17,7 +17,7 @@ const Register = () => {
           window.location.replace('http://localhost:3000/shareable-link/'+localStorage.getItem('tokenUrl'))
         }
       
-      else{navigate('/')};
+      else{navigate('/login')};
        
 
     } catch (error) {

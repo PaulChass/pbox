@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import api , { baseUrl } from '../api.js';
 
-const DownloadFile = ({ file }) => {
-    const [isLoading, setIsLoading] = useState(false);
+const DownloadFile = ({ file , isLoading ,setIsLoading }) => {
 
     const handleDownload = async () => {    
         setIsLoading(true);
@@ -28,10 +27,9 @@ const DownloadFile = ({ file }) => {
         }
     };
 
-return (<div>
-    <button className='' onClick={handleDownload} disabled={isLoading}>
+return (<div onClick={handleDownload}>
               {isLoading ? 'Downloading...' : 'Download'}
-            </button>{isLoading && <p>Your file is downloading</p>}</div>    );
-    };
+        </div>    );
+        };
     
     export default DownloadFile;

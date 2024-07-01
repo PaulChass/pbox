@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import api , { baseUrl } from '../api.js'; // Adjust the path according to your file structure
 import '../css/DownloadFolder.css'; 
-const DownloadFolder = ({ folderId, noText }) => {
-    const [isLoading, setIsLoading] = useState(false);
+const DownloadFolder = ({ folderId, noText, isLoading, setIsLoading }) => {
 
     const handleDownload = async () => {
         setIsLoading(true);
@@ -28,10 +27,10 @@ const DownloadFolder = ({ folderId, noText }) => {
         }
     };
 
-    return (<div>
-<button className='downloadButton' onClick={handleDownload} disabled={isLoading}>
-          {isLoading ? 'Downloading...' : 'Download Folder'}
-        </button>{isLoading && <h3>Be patient... this could take a while 😉</h3>}</div>    );
+    return (<div onClick={handleDownload} disabled={isLoading}>
+          {isLoading ? 'Downloading...' : 'Download'}
+            
+        </div>    );
 };
 
 export default DownloadFolder;

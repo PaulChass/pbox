@@ -26,10 +26,10 @@ const DeleteFile = ({ fileId, setFiles }) => {
     };
 
     return (
-        <div>
-            <button onClick={handleDelete} disabled={isLoading}>
+        <div onClick={handleDelete} >
+            <span>
                 {isLoading ? 'Deleting...' : 'Delete'}
-            </button>
+            </span>
             {isLoading && <p>Your file is being deleted</p>}
         </div>
     );

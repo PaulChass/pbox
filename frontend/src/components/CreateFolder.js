@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import api , { baseUrl } from '../api.js'; // Adjust the path according to your file structure
-
+import { Button } from 'react-bootstrap';
+import Form from 'react-bootstrap/Form';
 const CreateFolder = ({ setFolders, folderId }) => {
     const [folderName, setFolderName] = useState('');
     const token = localStorage.getItem('token');   
@@ -34,15 +35,15 @@ const CreateFolder = ({ setFolders, folderId }) => {
     };
 
     return (
-        <div>
-            <input
+        <div style={{display:'flex',width:'80%',margin:'0 auto',justifyContent:'center'}}>
+            <Form.Control
                 type="text"
                 value={folderName}
                 onChange={e => setFolderName(e.target.value)}
                 placeholder="Folder Name"
             />
             
-            <button onClick={handleCreateFolder}>Create</button>
+            <Button onClick={handleCreateFolder}>Create</Button>
         </div>
     );
 };

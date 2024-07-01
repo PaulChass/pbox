@@ -26,10 +26,8 @@ const DeleteFolder = ({ folderId, setFolders }) => {
     };
 
     return (
-        <div>
-            <button onClick={handleDelete} disabled={isLoading}>
+        <div onClick={handleDelete} disabled={isLoading}>
                 {isLoading ? 'Deleting...' : 'Delete'}
-            </button>
             {isLoading && <p>Your folder is being deleted</p>}
         </div>
     );

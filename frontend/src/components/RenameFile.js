@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import api , { baseUrl } from '../api.js'; 
 
-const RenameFile = ({ fileId, setFiles }) => {
+const RenameFile = ({ fileId, setFiles, setShowRenameFile }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [newName, setNewName] = useState('');
 
@@ -28,16 +28,18 @@ const RenameFile = ({ fileId, setFiles }) => {
             console.error('Error renaming file:', error);
         } finally {
             setIsLoading(false);
+            setShowRenameFile(false);
         }
     };
 
     return (
         <div>
+              <form onSubmit={(e) => {
+                 e.preventDefault();
+                handleRename();
+            }}>
             <input type='text' value={newName} onChange={e => setNewName(e.target.value)} />
-            <button onClick={handleRename} disabled={isLoading}>
-                {isLoading ? 'Renaming...' : 'Rename'}
-            </button>
-            {isLoading && <p>Your file is being renamed</p>}
+            </form>
         </div>
     );
 }

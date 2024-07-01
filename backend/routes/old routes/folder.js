@@ -9,14 +9,14 @@ router.get('/:parent_id?', authenticate , getFolders);
 
 
 // Create a new folder
-router.post('/',  createFolder);
+router.post('/', authenticate , createFolder);
 
 //Upload files
-router.post('/:folderId/upload', uploadFiles);
+router.post('/:folderId/upload', authenticate , uploadFiles);
 
 
 // Fetch files in a folder
-router.get('/:folderId/files', fetchFiles);
+router.get('/:folderId/files', authenticate, fetchFiles);
 
 // Download folder
 router.get('/:folderId/download', downloadFolder);

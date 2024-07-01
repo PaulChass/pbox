@@ -131,8 +131,11 @@ exports.uploadFiles = (req, res) => {
     // Add subfolders recursively to the archive
     const subfolders = await Folder.findAll({ where: { parent_id: folder.id } });
     for (const subfolder of subfolders) {
-        const subfolderPath = path.join(baseFolderPath, '..', subfolder.id.toString());
-        const subfolderArchivePath = path.join(baseArchivePath, subfolder.name);
+//        const subfolderPath = path.join(baseFolderPath, '..', subfolder.id.toString());
+        const subfolderPath = path.join(baseFolderPath);
+const subfolderArchivePath = path.join(baseArchivePath, subfolder.name);
+        console.log('Subfolder path:', subfolderPath);
+        console.log('Subfolder Archive Path:', subfolderArchivePath);
         console.log(`Adding subfolder to archive: ${subfolderPath} as ${subfolderArchivePath}`);
         await addFolderToArchive(archive, subfolder, subfolderPath, subfolderArchivePath);
     }

@@ -1,3 +1,29 @@
 li {
     font-size: small;
 }
+
+#dropdown-filelist {
+   font-size: small;
+   padding: 0px 10px;
+   color:black;
+   background-color: aliceblue!important;
+}
+
+.section {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    color:black;
+}
+
+.file_form {
+    display: flex;
+    width: 80%;
+    margin: 0 auto;
+    justify-content: center;
+}
+
+
+.flexCenter {
+    display: flex;
+    justify-content: center;
+}

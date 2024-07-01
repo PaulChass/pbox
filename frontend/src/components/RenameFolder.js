@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import api , { baseUrl } from '../api.js'; 
 
-const RenameFolder = ({ folderId, setUpdated }) => {    
+const RenameFolder = ({ folderId, setUpdated, setShowRename }) => {    
     const [folderName, setFolderName] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
@@ -21,6 +21,8 @@ const RenameFolder = ({ folderId, setUpdated }) => {
             const response = await api.patch(`${baseUrl}/folders/${folderId}/rename`, requestData, config);
             console.log('Folder renamed:', response.data);
             setUpdated(true);
+            setShowRename(false);
+
             
         } catch (error) {
             console.error('Error renaming folder:', error);
@@ -31,15 +33,18 @@ const RenameFolder = ({ folderId, setUpdated }) => {
 
     return (
         <div>
+            <form onSubmit={(e) => {
+    e.preventDefault();
+    handleRename();
+}}>
             <input
                 type="text"
                 value={folderName}
                 onChange={e => setFolderName(e.target.value)}
+                onSubmit={handleRename}
                 placeholder="New Folder Name"
             />
-            <button onClick={handleRename} disabled={isLoading}>
-                {isLoading ? 'Renaming...' : 'Rename'}
-            </button>
+           </form>
         </div>
     );
 }

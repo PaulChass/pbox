@@ -6,6 +6,8 @@ import DeleteFile from './DeleteFile';
 import RenameFile from './RenameFile';
 import { useLocation } from 'react-router-dom';
 import '../css/FileList.css';
+import {  Dropdown } from 'react-bootstrap';
+
 
 
 const FilesList = ({ folderId, linkToken, isNotRootFolder }) => {
@@ -16,12 +18,22 @@ const FilesList = ({ folderId, linkToken, isNotRootFolder }) => {
     const token = localStorage.getItem('token');   
     const location = useLocation();
     const [isDownloading, setIsDownloading] = useState(false);
-
+    const [showRenameFile, setShowRenameFile] = useState(false);
+    const [showRenameFileId, setShowRenameFileId] = useState(null);
+  
   
     useEffect(() => {
         fetchFiles();
     }, [folderId, location.pathname, updated]);
 
+
+    const handleClick = (id) => {
+                setShowRenameFileId(id);
+                setShowRenameFile(true);
+                console.log(id);
+                console.log(showRenameFileId)
+        }
+    
 
     const fetchFiles = async () => {
         try {
@@ -46,21 +58,38 @@ const FilesList = ({ folderId, linkToken, isNotRootFolder }) => {
         }
     };
 
+    
     //if (loading) return <p>Loading files...</p>;
     //if (error) return <p>You need to be logged in to access your drive {linkToken}<a style={{ marginLeft: '10px', marginRight: '10px' }} href='http://localhost:3000/login'>Login</a><a href='http://localhost:3000/register'>Register</a></p>;
     return (
-        <div>
-            <ul>
+        <div className='section'>
+            <span>
                 {files.map(file => (
-                    <li key={file.id}>
-                        {file.name}
-                        <RenameFile fileId={file.id} setFiles={setFiles} />
-                        <DownloadFile file={file.id} />
-                        <DeleteFile fileId={file.id} setFiles={setFiles} />
+                    <li key={file.id} style={{display:'flex',justifyContent:'center'}}>
+                        {(showRenameFile && showRenameFileId == file.id) ?
+                            <RenameFile fileId={file.id} setFiles={setFiles} setShowRenameFile={setShowRenameFile} /> 
+                            : file.name 
+                             }
+                        <Dropdown >
+                        <Dropdown.Toggle variant="dark" id="dropdown-filelist">
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu>
+                            <Dropdown.Item >                    
+                            <DownloadFile file={file} setIsLoading={setLoading}/>
+                            </Dropdown.Item>
+                            <Dropdown.Item >                    
+                            <DeleteFile fileId={file.id} setFiles={setFiles} />
+                            </Dropdown.Item>
+                            <Dropdown.Item onClick={() => handleClick(file.id, 'renameFile')}>
+                                Rename
+                            </Dropdown.Item>                         
+                        </Dropdown.Menu>
+                    </Dropdown>
+                    
                     </li>
                 ))}
-            </ul>
-            <p>{linkToken}</p>
+                {files.length === 0 && <p>No files found</p>}
+            </span>
             {isNotRootFolder && <FileUpload folderId={folderId} setUpdated={setUpdated} linkToken={linkToken} />}
         </div>
     );
