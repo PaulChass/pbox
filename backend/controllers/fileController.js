@@ -11,7 +11,7 @@ exports.downloadFile = async (req, res) => {
     }
     const filePath = path.join(__dirname, '..', 'uploads', file.folder_id.toString()  ,file.name);
     console.log(filePath);
-    res.download(filePath);
+    res.download(filePath);  
 }
 
 // Delete file function
