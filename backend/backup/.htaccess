@@ -1,6 +1,0 @@
-   Header add Access-Control-Allow-Origin "*"
-<IfModule mod_headers.c>
-  Header set Access-Control-Allow-Origin "https://pbox.paulchasseuil.fr"
-  Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
-  Header set Access-Control-Allow-Headers "Content-Type, Authorization"
-</IfModule>
