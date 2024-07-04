@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import api , { baseUrl } from '../api.js'; // Adjust the path according to your file structure
-import '../css/DownloadFolder.css'; 
-const DownloadFolder = ({ folderId, noText, isLoading, setIsLoading }) => {
+import '../styles/DownloadFolder.css'; 
+const DownloadFolder = ({ folderId, noText, isLoading, setIsLoading, folderName }) => {
 
     const handleDownload = async () => {
         setIsLoading(true);
@@ -16,7 +16,7 @@ const DownloadFolder = ({ folderId, noText, isLoading, setIsLoading }) => {
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `folder_${folderId}.zip`); // Adjust filename as needed
+            link.setAttribute('download', `${folderName}.zip`); // Adjust filename as needed
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);

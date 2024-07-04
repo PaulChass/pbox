@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
 import FolderContent from './FolderContent';
 
-import '../css/FolderTree.css';
 
 
 

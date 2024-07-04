@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import api, { baseUrl } from '../api.js'; // Adjust the path according to your file structure
 import { Form, Button } from 'react-bootstrap';
-import { Spinner } from 'react-bootstrap';
 
 
-const FileUpload = ({ folderId, setUpdated, linkToken, setIsRootFolder }) => {
+const FileUpload = ({ folderId, setUpdated, linkToken, setIsRootFolder, setIsLoading }) => {
   const [selectedFiles, setSelectedFiles] = useState(null);
   const token = localStorage.getItem('token');
-  const [isLoading, setIsLoading] = useState(false);
   const handleFileChange = (e) => {
     setSelectedFiles(e.target.files);
   };
@@ -26,9 +24,7 @@ const FileUpload = ({ folderId, setUpdated, linkToken, setIsRootFolder }) => {
 
 
     let postUrl = `${baseUrl}/folders/${folderId}/upload`;
-    if (linkToken !== undefined || linkToken !== null) {
-      postUrl = `${baseUrl}/shareable-links/${linkToken}/upload`;
-    }
+   
     try {
       await api.post(postUrl, formData, {
         headers: {
@@ -54,21 +50,12 @@ const FileUpload = ({ folderId, setUpdated, linkToken, setIsRootFolder }) => {
 
   return (
     <div>
-      {isLoading ? (
-        <span>Loading please wait...
-          <Spinner animation="border" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </Spinner>
-        </span>
-      ) : (
         <div style={{marginTop:'1rem'}}>
-
           <Form onSubmit={handleUpload} className="file_form" style={{marginTop:'1rem'}}>
             <Form.Control type="file" multiple onChange={handleFileChange} />
             <Button type="submit">Upload</Button>
           </Form>
         </div>
-      )}
     </div>
   );
 };

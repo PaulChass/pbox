@@ -1,0 +1,93 @@
+.folders{
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 2em;
+    background-color: rgb(0 169 247 / 20%);
+    margin: auto!important;
+    border-radius: 15px;
+    padding-bottom: 50px;
+    text-align: center;
+    align-items: center;
+    
+}
+
+#dropdown-basic{
+    width: 100%;
+    margin: 80% 0;    
+}
+
+.folder{
+    display: flex;
+    align-items: center;
+    padding: 0.5em;
+    margin: 0.5em;
+    border-radius: 5px;
+    background-color: #f0f0f0;
+    cursor: pointer;
+}
+
+.flexCenter {
+    display: flex;
+    justify-content: center;
+}
+    
+
+body {
+    background-image: url('https://balldontlie.fr/bgdark.avif');
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    color: white;
+    
+  }
+
+#folderName {
+color: white;
+font-size: 2rem;
+}
+
+.driveTitle {
+    font-size: 3rem;
+    font-weight: bold;
+    width: 100%;
+    text-align: center;
+    margin-top: 3rem!important;
+    margin-bottom: 3rem;
+    color:white
+}
+
+.section {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    color:white
+}
+li{
+    font-size: 1.1rem;
+}
+
+.shareableLink{
+    font-size: 1rem;
+    margin: 0.5em 0;    
+    text-align: center;
+    margin-top: 2rem;
+    margin-bottom: 3rem;
+    color:white
+}
+
+.shareableLink  h2{
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 2rem;
+    color:white
+}
+
+.shareableLink Button{
+    margin-top: 1rem;
+}
+
+.file_form {
+    width: 70%
+}

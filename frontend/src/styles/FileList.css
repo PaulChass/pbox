@@ -5,14 +5,19 @@ li {
 #dropdown-filelist {
    font-size: small;
    padding: 0px 10px;
-   color:black;
-   background-color: aliceblue!important;
 }
+
+
+
 
 .section {
     padding-top: 1rem;
     padding-bottom: 1rem;
-    color:black;
+}
+
+.btn-secondary {
+    max-width: 10%;
+    text-align: center  ;
 }
 
 .file_form {

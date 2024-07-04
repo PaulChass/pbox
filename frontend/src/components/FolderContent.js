@@ -1,19 +1,22 @@
-import React, { useEffect, useState } from 'react';
+ import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import api, { baseUrl } from '../api.js'; // Adjust the path according to your file structure
+
+
 import CreateFolder from '../components/CreateFolder';
 import FileList from '../components/FilesList';
-import { useLocation } from 'react-router-dom';
 import DownloadFolder from './DownloadFolder';
 import DeleteFolder from './DeleteFolder';
 import RenameFolder from './RenameFolder';
 import CreateShareableLink from './CreateShareableLink';
 import { Container, Row, Col, Button, Card, Dropdown, Spinner } from 'react-bootstrap';
 
+import '../styles/FolderContent.css'; 
+
 const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
     const [folders, setFolders] = useState([]);
     const [updated, setUpdated] = useState(false);
-
-    const [folderName, setFolderName] = useState('My drive');
+    const [folderName, setFolderName] = useState('root');
     const [shareFolderId, setShareFolderId] = useState(null);
     const [shareFolderName, setShareFolderName] = useState('S');
     const [isLoading, setIsLoading] = useState(false);
@@ -23,9 +26,7 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
     const [showRename, setShowRename] = useState(false);
     const [showRenameId, setShowRenameId] = useState(null);
 
-   
-    console.log(localStorage.getItem('token'));
-
+    const  url  = useParams().token;
 
     const fetchFolders = async (token) => {
 
@@ -38,20 +39,23 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
 
 
         if (shared) {
-            let shareableLink = localStorage.getItem('tokenUrl');
+            
             try {
-                const response = await api.get(`${baseUrl}/shareable-links/${shareableLink}`, reqparams);
+                const response = await api.get(`${baseUrl}/shareable-links/${url}`, reqparams);
                 setFolders(response.data.folders);
                 setFolderId(response.data.folder.id);
                 setFolderName(response.data.folder.name);
+                setLoggedIn(true);
                 if (rootFolderId === null) {
                     setRootFolderId(response.data.folder.id);
                 }
-                if (response.data.type ==='public')
-                    {
-                        setLoggedIn(true);
-                    }
             } catch (error) {
+                if (error.response.status === 401) {
+                    alert("ERror 401", url
+                    )
+                    setLoggedIn(false);
+                    localStorage.setItem('gotoUrl', url);
+                }
                 console.error('Error fetching folders:', error);
             }
         } else {
@@ -60,6 +64,9 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
                 setFolders(response.data);
                 setLoggedIn(true);
             } catch (error) {
+                if ( error.response.status === 401) {
+                    setLoggedIn(false);
+                }
                 console.error('Error fetching folders:', error);
             }
         }
@@ -77,6 +84,7 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
     const handleClick = (id, type = 'null') => {
         switch (type) {
             case 'createLink':
+                // show create link form
                 if (showCreateLink) {
                     setShowCreateLink(false);
                 } else {
@@ -87,11 +95,13 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
                 break;
 
             case 'rename':
+                //transform button into textarea 
                 setShowRenameId(id);
                 setShowRename(true);
                 break;
 
             default:
+                // if user isn't renaming a folder goto the folder
                 if (!showRename) {
                     setFolderId(id);
                     let newFolder = folders.find(folder => folder.id === id).name;
@@ -110,7 +120,7 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
         const id = findParentFolderId(folders, folderId);
         setFolderId(id);
         if (id === null) {
-            setFolderName('My drive');
+            setFolderName('root');
         } else {
             let oldFolder = folderName.split(' > ').slice(0, -1).join(' > ');
             setFolderName(oldFolder);
@@ -136,7 +146,7 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
                         <Dropdown.Toggle variant="dark" id="dropdown-basic" />
                         <Dropdown.Menu>
                             <Dropdown.Item>
-                                <DownloadFolder folderId={folder.id} isLoading={isLoading} setIsLoading={setIsLoading} setShowRename={setShowRename} />
+                                <DownloadFolder folderId={folder.id} isLoading={isLoading} setIsLoading={setIsLoading} setShowRename={setShowRename} folderName={folder.name} />
                             </Dropdown.Item>
                             <Dropdown.Item>
                                 <DeleteFolder folderId={folder.id} setFolders={setFolders} />
@@ -155,8 +165,7 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
     };
 
     let isRoot = folderId === rootFolderId;
-    console.log('email', localStorage.getItem('email'));
-    console.log('loggedIn', loggedIn);
+  
     
 
     if (!loggedIn) {
@@ -168,34 +177,39 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
                     <a href='/register'>Register</a></p>
             </div>
         );
-    
+        
     } else {
         return (
             <Container>
                 <Row>
-                    <Col><h2 className='driveTitle'>{shared? 'Shared Drive' : 'Welcome to your drive'} </h2></Col>
+                    <Col><h2 className='driveTitle'>{shared? 'Shared Drive' : 'My drive'} </h2></Col>
                 </Row>
-                <Row className="folders">
+                <Row className="drive">
+
+                    <div className="folders"style={{ marginTop: '1rem', marginBottom: '1rem' }}>
                     <h3 id='folderName'>{folderName}</h3>
 
-                    <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>
-                        {!isRoot && 
-                            <Button variant='secondary' style={{ width: '100%', marginTop: '3rem', marginBottom: '2rem' }} 
-                                onClick={handleBackClick}> ...
-                            </Button>}
+                            {!isRoot && 
+                        <Button variant='secondary' style={{ width: '100%', marginTop: '3rem', marginBottom: '2rem' }} 
+                                onClick={handleBackClick}> 
+                        ...
+                        </Button>}
+
                         {renderFolders(folders)}
+                        
                         <CreateFolder setFolders={setFolders} folderId={folderId} />
-                    </div>
 
-                    <FileList folderId={folderId} isNotRootFolder={folderId !== null} />
-
-                    {showCreateLink && <CreateShareableLink folderId={shareFolderId} folderName={shareFolderName} />}
+                    <FileList folderId={folderId} isNotRootFolder={folderId !== null} setIsLoading={setIsLoading} linkToken={url} />
+                        {showCreateLink && 
+                    <CreateShareableLink folderId={shareFolderId} folderName={shareFolderName} />}
 
                     {isLoading &&
-                        <span>Loading please wait...<Spinner animation="border" role="status">
-                            <span className="visually-hidden">Loading...</span>
-                        </Spinner></span>}
-                        
+                    <span>Loading please wait...
+                    <Spinner animation="border" role="status">
+                    <span className="visually-hidden">
+                        Loading...</span>
+                    </Spinner></span>}
+                    </div>    
                 </Row>
             </Container>
         );

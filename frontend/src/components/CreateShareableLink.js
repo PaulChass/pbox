@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import api , { baseUrl } from '../api.js'; // Adjust the path according to your file structure
+import { Button } from 'react-bootstrap';
 
 const CreateShareableLink = ({ folderId, folderName }) => {
   const [shareableLink, setShareableLink] = useState(null);
@@ -36,8 +37,8 @@ const CreateShareableLink = ({ folderId, folderName }) => {
   };
 
   return (
-    <div>
-      <h2>Create Shareable Link for {folderName}</h2>
+    <div className='shareableLink'>
+      <h2>Create share link for: {folderName}</h2>
       <form onSubmit={handleSubmit}>
         
           <div> <label htmlFor="type">Type:</label>
@@ -60,7 +61,7 @@ const CreateShareableLink = ({ folderId, folderName }) => {
             onChange={(e) => setExpiresAt(e.target.value)}
           />
         </div>
-        <button type="submit">Generate Link</button>
+        <Button type="submit">Generate Link</Button>
         {shareableLink && (
           <div>
             <p>Shareable Link:</p>

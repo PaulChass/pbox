@@ -51,7 +51,8 @@ exports.createFolder = async (req, res) => {
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const folderId = req.params.folderId; // Get folderId from request params
-    const uploadPath = path.join(__dirname, '..', 'uploads');
+    const uploadPath = path.join(__dirname, '..', 'uploads', folderId);
+    console.log(`Uploading to folder: ${uploadPath}`);
 
     // Ensure the folder exists
     if (!fs.existsSync(uploadPath)) {
@@ -69,8 +70,8 @@ const upload = multer({ storage });
 
 exports.uploadFiles = (req, res) => {
   const folderId = req.params.folderId ;
+  //const email = req.body.email;
   
-  //const userId = req.user.id; // Assuming user ID is available in req.user
   upload.array('files')(req, res, async (err) => {
     if (err instanceof multer.MulterError) {
       console.error('Multer error:', err);
@@ -87,11 +88,10 @@ exports.uploadFiles = (req, res) => {
         path: file.path,
         size: file.size,
         folder_id: folderId,
-        user_id: req.user.id
       }));
 
       await File.bulkCreate(files);
-
+      console.log("files",files)
       res.status(200).json({ message: 'Files uploaded and saved successfully' });
     } catch (dbError) {
       console.error('Failed to save files in the database:', dbError);
@@ -132,7 +132,7 @@ exports.uploadFiles = (req, res) => {
     const subfolders = await Folder.findAll({ where: { parent_id: folder.id } });
     for (const subfolder of subfolders) {
 //        const subfolderPath = path.join(baseFolderPath, '..', subfolder.id.toString());
-        const subfolderPath = path.join(baseFolderPath);
+        const subfolderPath = path.join(__dirname, '..', 'uploads',subfolder.id.toString());
 const subfolderArchivePath = path.join(baseArchivePath, subfolder.name);
         console.log('Subfolder path:', subfolderPath);
         console.log('Subfolder Archive Path:', subfolderArchivePath);
@@ -140,6 +140,32 @@ const subfolderArchivePath = path.join(baseArchivePath, subfolder.name);
         await addFolderToArchive(archive, subfolder, subfolderPath, subfolderArchivePath);
     }
 };
+
+// Sanitize folder name by removing or replacing invalid characters
+function sanitizeFolderName(folderName) {
+  // Define a list of invalid characters and their replacements
+  // This can be adjusted based on your requirements or file system
+  const invalidChars = {
+      '?': '',  // Remove '?'
+      '<': '',
+      '>': '',
+      ':': '',
+      '"': '',
+      '/': '',
+      '\\': '',
+      '|': '',
+      '*': ''
+      // Add more characters as needed
+  };
+
+  // Replace each invalid character with its replacement
+  let sanitizedFolderName = folderName;
+  for (const [invalidChar, replacement] of Object.entries(invalidChars)) {
+      sanitizedFolderName = sanitizedFolderName.split(invalidChar).join(replacement);
+  }
+
+  return sanitizedFolderName;
+}
 
 
 exports.downloadFolder = async (req, res) => {
@@ -150,23 +176,25 @@ exports.downloadFolder = async (req, res) => {
       if (!folder) {
           return res.status(404).json({ error: 'Folder not found' });
       }
+      const sanitizedFolderName = sanitizeFolderName(folder.name);
+
 
       const archive = archiver('zip', {
           zlib: { level: 9 } // Compression level
       });
 
-      res.attachment(`${folder.name}.zip`);
+      res.attachment(`${sanitizedFolderName}.zip`);
 
       archive.on('error', (err) => {
           throw err;
-      });
+      }); 
 
       archive.pipe(res);
 
-      const folderPath = path.join(__dirname, '..', 'uploads');
+      const folderPath = path.join(__dirname, '..', 'uploads',folderId);
       console.log(`Starting to add folder to archive: ${folderPath}`);
-      await addFolderToArchive(archive, folder, folderPath, folder.name);
-
+      await addFolderToArchive(archive, folder, folderPath, sanitizedFolderName);
+      
       await archive.finalize();
   } catch (error) {
       console.error('Failed to download folder:', error);

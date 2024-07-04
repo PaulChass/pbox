@@ -1,0 +1,29 @@
+#login{
+    text-align: center;
+}
+
+#login * {
+    margin-bottom: 1rem;
+}
+
+#login Form {
+    background-color: rgb(0 169 247 / 20%);
+    padding: 2rem;
+    width: 80%;
+    justify-content: center;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin: auto;
+    margin-bottom: 2rem;
+}
+
+.center{
+    display: flex;
+    justify-content: center;
+}
+
+.btn{
+    text-align: center;
+    margin: auto;
+
+}

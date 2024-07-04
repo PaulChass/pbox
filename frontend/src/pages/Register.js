@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api , { baseUrl } from '../api.js'; // Adjust the path according to your file structure
+import { Form, FormControl, Button, Container, Row } from 'react-bootstrap';
+import '../styles/Register.css';
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -26,15 +28,23 @@ const Register = () => {
     }
   };
 
-  return (
-    <form onSubmit={handleSubmit}>
-      <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username" required />
-      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required />
-      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required />
-      <button type="submit">Register</button>
-      <p>You already have an account ?    <a style={{marginLeft:'20px'}} href="/Login">Sign in</a></p>
-
-    </form>
+  return (<div>
+    <Container id="register">
+    <Row>
+    <h2 className='driveTitle'>Register</h2>
+    </Row>
+    <Form onSubmit={handleSubmit}>
+      <FormControl type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username" required />
+      <FormControl type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required />
+      <FormControl type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required />
+      <Button type="submit">Register</Button>
+      </Form>
+    </Container>
+      <Row className='center'>You already have an account ?    
+        <a className='center' href="/login">
+      <Button className='btn'>Sign In</Button>
+        </a></Row>
+    </div>
   );
 };
 

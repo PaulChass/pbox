@@ -35,7 +35,7 @@ const CreateFolder = ({ setFolders, folderId }) => {
     };
 
     return (
-        <div style={{display:'flex',width:'80%',margin:'0 auto',justifyContent:'center'}}>
+        <div style={{display:'flex',width: '18rem',margin:'0 auto',justifyContent:'center'}}>
             <Form.Control
                 type="text"
                 value={folderName}
