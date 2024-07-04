@@ -68,9 +68,28 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+
+async function ensureFolderStructure(folderPath, rootFolderId) {
+  let currentParentId = rootFolderId; // Start with the root folder ID
+  const pathParts = folderPath.split('/'); // Assuming folderPath is something like 'folder/subfolder'
+
+  for (const part of pathParts) {
+    if (!part) continue; // Skip empty parts, could happen if path starts with '/'
+    // Check if folder exists
+    let folder = await Folder.findOne({ where: { name: part, parent_id: currentParentId } });
+    if (!folder) {
+      // Folder doesn't exist, create it
+      folder = await Folder.create({ name: part, parent_id: currentParentId });
+    }
+    currentParentId = folder.id; // Update currentParentId for the next iteration
+  }
+
+  return currentParentId; // Return the ID of the last folder in the path
+}
+
+
 exports.uploadFiles = (req, res) => {
-  const folderId = req.params.folderId ;
-  //const email = req.body.email;
+  const rootFolderId = req.params.folderId; // This is the ID of the folder where the upload was initiated
   
   upload.array('files')(req, res, async (err) => {
     if (err instanceof multer.MulterError) {
@@ -80,22 +99,27 @@ exports.uploadFiles = (req, res) => {
       console.error('Unknown error during upload:', err);
       return res.status(500).json({ error: 'Failed to upload files' });
     }
-
+    console.log('Req Files',req.files);
 
     try {
-      const files = req.files.map(file => ({
-        name: file.originalname,
-        path: file.path,
-        size: file.size,
-        folder_id: folderId,
-      }));
+      for (const file of req.files) {
+        // Ensure the folder structure for each file and get the folder_id
+        const folderId = await ensureFolderStructure(file.folderPath || '', rootFolderId);
 
-      await File.bulkCreate(files);
-      console.log("files",files)
+        // Create the file record with the correct folder_id
+        await File.create({
+          name: file.originalname,
+          path: file.path,
+          size: file.size,
+          folder_id: folderId, // Use the folder_id obtained from ensureFolderStructure
+        });
+      }
+
+      console.log("Files uploaded and saved successfully");
       res.status(200).json({ message: 'Files uploaded and saved successfully' });
-    } catch (dbError) {
-      console.error('Failed to save files in the database:', dbError);
-      res.status(500).json({ error: 'Failed to save files in the database' });
+    } catch (error) {
+      console.error('Error processing files:', error);
+      res.status(500).json({ error: 'Failed to process files' });
     }
   });
 };

@@ -7,7 +7,7 @@ import HomePage from './pages/HomePage';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Image from 'react-bootstrap/Image';
 import './App.css';
-
+import 'drag-drop-touch';
 
 const App = () => {
   document.title = 'Drive';

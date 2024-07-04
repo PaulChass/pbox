@@ -12,7 +12,7 @@ const FileUpload = ({ folderId, setUpdated, linkToken, setIsRootFolder, setIsLoa
 
   const handleUpload = async (e) => {
     e.preventDefault();
-    setIsLoading(true); // Step 3: Set loading to true before API call
+    setIsLoading(true); 
     const formData = new FormData();
 
     for (let i = 0; i < selectedFiles.length; i++) {
@@ -52,7 +52,7 @@ const FileUpload = ({ folderId, setUpdated, linkToken, setIsRootFolder, setIsLoa
     <div>
         <div style={{marginTop:'1rem'}}>
           <Form onSubmit={handleUpload} className="file_form" style={{marginTop:'1rem'}}>
-            <Form.Control type="file" multiple onChange={handleFileChange} />
+            <Form.Control type="file" multiple onChange={handleFileChange}/>
             <Button type="submit">Upload</Button>
           </Form>
         </div>
