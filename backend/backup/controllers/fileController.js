@@ -9,7 +9,7 @@ exports.downloadFile = async (req, res) => {
     if (!file) {
         return res.status(404).json({ error: 'File not found' });
     }
-    const filePath = path.join(__dirname, '..', 'uploads', file.folder_id.toString()  ,file.name);
+    const filePath = path.join(__dirname, '..', 'uploads', file.name);
     console.log(filePath);
     res.download(filePath);
 }

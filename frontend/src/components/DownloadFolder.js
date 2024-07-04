@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import api , { baseUrl } from '../api.js'; // Adjust the path according to your file structure
 import '../styles/DownloadFolder.css'; 
-const DownloadFolder = ({ folderId, noText, isLoading, setIsLoading, folderName }) => {
+const DownloadFolder = ({ folderId, isLoading, setIsLoading, folderName }) => {
 
     const handleDownload = async () => {
         setIsLoading(true);
