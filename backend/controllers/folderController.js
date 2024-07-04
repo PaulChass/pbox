@@ -263,3 +263,48 @@ exports.renameFolder = async (req, res) => {
       res.status(500).json({ error: 'Failed to rename folder' });
   }
 }
+
+
+exports.moveFolder = async (req, res) => {
+  const folderId = req.params.folderId;
+  const newParentId = req.params.newFolderId;
+  console.log('Folder ID:', req.body);
+  console.log('New Parent ID:', newParentId);
+  try {
+      const folder = await Folder.findByPk(folderId);
+      if (!folder) {
+          return res.status(404).send('Folder not found');
+      }
+
+      // Fetch Subfolders and Files
+      const subfolders = await Folder.findAll({ where: { parent_id: folderId } });
+      const files = await File.findAll({ where: { folder_id: folderId } });
+     
+      for (const subfolder of subfolders) {
+           subfolder.parent_id = newParentId;
+           await subfolder.save();
+       }
+       console.log('Subfolders updated successfully')
+       for (const file of files) {
+           file.path = updateFilePath(file.path, newParentId);
+           await file.save();
+       }
+
+      
+
+      folder.parent_id = newParentId;
+      await folder.save();
+
+      res.status(200).json({ message: 'Folder moved successfully' });
+  } catch (error) {
+      console.error('Failed to move folder:', error);
+      res.status(500).json({ error: 'Failed to move folder' });
+  }
+}
+
+// Update the file path based on the new parent folder
+function updateFilePath(oldPath, newParentId) {
+  const parts = oldPath.split('/');
+  parts[parts.length - 2] = newParentId;
+  return parts.join('/');
+}

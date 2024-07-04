@@ -54,8 +54,6 @@ exports.renameFile = async (req, res) => {
 
         const oldPath = file.path;
         const newPath = path.join(__dirname, '..', 'uploads', name);
-        console.log('oldPath:', oldPath);
-        console.log('newPath:', newPath);
         await fs.rename(oldPath, newPath);
         file.name = name;
         file.path = newPath;
@@ -68,3 +66,23 @@ exports.renameFile = async (req, res) => {
     }
 };
 
+exports.moveFile = async (req, res) => {    
+    const fileId = req.params.fileId;
+    const  folderId  = req.params.newFolderId;
+    console.log(fileId, folderId );
+    try {
+        const file = await File.findByPk(fileId);
+        if (!file) {
+            return res.status(404).send('File not found');
+        }
+        console.log(file);
+        file.folder_id = folderId;
+        await file.save();
+        console.log(file);
+        res.send('File moved successfully');
+
+    } catch (error) {
+        console.error('Error moving file:', error);
+        res.status(500).send('Error moving file');
+    }
+}

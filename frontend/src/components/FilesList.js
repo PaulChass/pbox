@@ -10,10 +10,9 @@ import {  Dropdown } from 'react-bootstrap';
 
 
 
-const FilesList = ({ folderId, linkToken, isNotRootFolder, setIsLoading }) => {
+const FilesList = ({ folderId, linkToken, isNotRootFolder, setIsLoading, updated, setUpdated }) => {
     const [files, setFiles] = useState([]);
     const [error, setError] = useState(null);
-    const [updated, setUpdated] = useState(false);
     const token = localStorage.getItem('token');   
     const location = useLocation();
     const [showRenameFile, setShowRenameFile] = useState(false);
@@ -56,6 +55,7 @@ const FilesList = ({ folderId, linkToken, isNotRootFolder, setIsLoading }) => {
         }
     };
 
+ 
     
     //if (loading) return <p>Loading files...</p>;
     //if (error) return <p>You need to be logged in to access your drive {linkToken}<a style={{ marginLeft: '10px', marginRight: '10px' }} href='http://localhost:3000/login'>Login</a><a href='http://localhost:3000/register'>Register</a></p>;
@@ -63,7 +63,14 @@ const FilesList = ({ folderId, linkToken, isNotRootFolder, setIsLoading }) => {
         <div className='section'>
             <span>
                 {files.map(file => (
-                    <li key={file.id} style={{display:'flex',justifyContent:'center'}}>
+                    <li key={file.id} style={{display:'flex',justifyContent:'center'}} 
+                        draggable='true'
+                        onDragStart={(e) => {
+                            const dragData = JSON.stringify({ id: file.id, type: 'files' });
+                            e.dataTransfer.setData('application/json', dragData);
+                          }}                        
+                        onDragOver={(e) => e.preventDefault()}>
+                        
                         {(showRenameFile && showRenameFileId == file.id) ?
                             <RenameFile fileId={file.id} setFiles={setFiles} setShowRenameFile={setShowRenameFile} /> 
                             : file.name 

@@ -1,5 +1,5 @@
 const express = require('express');
-const { getFolders, createFolder, uploadFiles, fetchFiles, downloadFolder, deleteFolder, renameFolder } = require('../controllers/folderController');
+const { getFolders, createFolder, uploadFiles, fetchFiles, downloadFolder, deleteFolder, renameFolder, moveFolder } = require('../controllers/folderController');
 const router = express.Router();
 const  authenticate  = require('../middleware/auth');
 
@@ -25,5 +25,6 @@ router.delete('/:folderId/delete', deleteFolder);
 
 router.patch('/:folderId/rename', renameFolder);
 
+router.patch('/:folderId/:newFolderId?/move', moveFolder);
 
 module.exports = router;

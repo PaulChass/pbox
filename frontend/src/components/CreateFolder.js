@@ -44,7 +44,6 @@ const CreateFolder = ({ setFolders, folderId }) => {
     return (
         <div style={{display:'flex',width: '18rem',margin:'0 auto',justifyContent:'center'}}>
             <Form onSubmit={handleCreateFolder}>
-             {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
             <Form.Control
                 type="text"
                 value={folderName}

@@ -18,7 +18,7 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
     const [updated, setUpdated] = useState(false);
     const [folderName, setFolderName] = useState('root');
     const [shareFolderId, setShareFolderId] = useState(null);
-    const [shareFolderName, setShareFolderName] = useState('S');
+    const [shareFolderName, setShareFolderName] = useState('Shared Folder');
     const [isLoading, setIsLoading] = useState(false);
     const [loggedIn, setLoggedIn] = useState(false);
     const [rootFolderId, setRootFolderId] = useState(null);
@@ -127,13 +127,52 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
         }
     };
 
+    const handleDrop = (e, id) => {
+        console.log(e.dataTransfer.getData('application/json'));
+        console.log('Folder id:', id);
+        e.preventDefault();
+        const draggedData = JSON.parse(e.dataTransfer.getData('application/json'));
+        const draggedId = draggedData.id;
+        const type = draggedData.type;
+        console.log('Dragged id:', draggedId);
+        console.log('Type:', type);
+        // if folder is dropped on itself do nothing
+        if(parseInt(id)===parseInt(draggedId)){return null};
+
+        
+        try
+        {
+            const response = api.patch(`${baseUrl}/${type}/${draggedId}/${id}/move`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+            );
+            console.log('Folder moved:', response.data);
+            setUpdated(true);
+        }
+        catch (error) {
+            console.error('Error moving folder:', error);
+        }  
+    };
+
+
     const renderFolders = () => {
         if (folders && folders.length === 0) {
             return <p>No folders found</p>;
         } else {
             return folders.filter(folder => folder.parent_id === folderId).map(folder => (
                 <div key={folder.id} className='flexCenter'>
-                    <Card className="folder" onClick={() => handleClick(folder.id)} style={{ width: '18rem' }}>
+                    <Card className="folder droppable-card" 
+                            onClick={() => handleClick(folder.id)} style={{ width: '18rem' }}
+                            draggable={true} 
+                            onDragStart={(e) => {
+                                const dragData = JSON.stringify({ id: folder.id, type: 'folders' });
+                                e.dataTransfer.setData('application/json', dragData);
+                              }}                              onDragOver={(e) => e.preventDefault()} 
+                            onDrop={(e) => handleDrop(e,folder.id)}>
+                            
+                            
                         <Card.Body>
                             <Card.Title>
                                 {showRename && showRenameId === folder.id
@@ -191,7 +230,9 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
 
                             {!isRoot && 
                         <Button variant='secondary' style={{ width: '100%', marginTop: '3rem', marginBottom: '2rem' }} 
-                                onClick={handleBackClick}> 
+                        onDragOver={(e) => e.preventDefault()} 
+
+                                onClick={handleBackClick} onDrop={e => handleDrop(e,findParentFolderId(folders,folderId))}> 
                         ...
                         </Button>}
 
@@ -199,7 +240,7 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
                         
                         <CreateFolder setFolders={setFolders} folderId={folderId} />
 
-                    <FileList folderId={folderId} isNotRootFolder={folderId !== null} setIsLoading={setIsLoading} linkToken={url} />
+                    <FileList folderId={folderId} isNotRootFolder={folderId !== null} setIsLoading={setIsLoading} linkToken={url} updated={updated} setUpdated={setUpdated} />
                         {showCreateLink && 
                     <CreateShareableLink folderId={shareFolderId} folderName={shareFolderName} />}
 
