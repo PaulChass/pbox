@@ -10,12 +10,12 @@ import {  Dropdown } from 'react-bootstrap';
 
 
 
-const FilesList = ({ folderId, linkToken, isNotRootFolder, setIsLoading, updated, setUpdated }) => {
+const FilesList = ({ folderId, linkToken, isNotRootFolder, setIsLoading, updated, setUpdated, showRenameFile, setShowRenameFile }) => {
     const [files, setFiles] = useState([]);
     const [error, setError] = useState(null);
     const token = localStorage.getItem('token');   
     const location = useLocation();
-    const [showRenameFile, setShowRenameFile] = useState(false);
+    
     const [showRenameFileId, setShowRenameFileId] = useState(null);
   
   
@@ -57,26 +57,26 @@ const FilesList = ({ folderId, linkToken, isNotRootFolder, setIsLoading, updated
 
  
     
-    //if (loading) return <p>Loading files...</p>;
-    //if (error) return <p>You need to be logged in to access your drive {linkToken}<a style={{ marginLeft: '10px', marginRight: '10px' }} href='http://localhost:3000/login'>Login</a><a href='http://localhost:3000/register'>Register</a></p>;
     return (
         <div className='section'>
             <span>
                 {files.map(file => (
                     <li key={file.id} style={{display:'flex',justifyContent:'center'}} 
-                        draggable='true'
-                        onDragStart={(e) => {
-                            const dragData = JSON.stringify({ id: file.id, type: 'files' });
-                            e.dataTransfer.setData('application/json', dragData);
-                          }}                        
-                        onDragOver={(e) => e.preventDefault()}>
+                       >
                         
                         {(showRenameFile && showRenameFileId == file.id) ?
                             <RenameFile fileId={file.id} setFiles={setFiles} setShowRenameFile={setShowRenameFile} /> 
                             : file.name 
                              }
                         <Dropdown >
-                        <Dropdown.Toggle variant="dark" id="dropdown-filelist">
+                        <Dropdown.Toggle variant="dark" id="dropdown-filelist"
+                         draggable={showRenameFile? false :true }
+                         onDragStart={(e) => {
+                             if(!showRenameFile){ 
+                             const dragData = JSON.stringify({ id: file.id, type: 'files' });
+                             e.dataTransfer.setData('application/json', dragData);}
+                           }}                        
+                         onDragOver={(e) => e.preventDefault()}>
                         </Dropdown.Toggle>
                         <Dropdown.Menu>
                             <Dropdown.Item >                    

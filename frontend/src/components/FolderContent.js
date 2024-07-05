@@ -25,6 +25,7 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
     const [showCreateLink, setShowCreateLink] = useState(false);
     const [showRename, setShowRename] = useState(false);
     const [showRenameId, setShowRenameId] = useState(null);
+    const [showRenameFile, setShowRenameFile] = useState(false);
 
     const url = useParams().token;
 
@@ -138,6 +139,7 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
         console.log('Type:', type);
         // if folder is dropped on itself do nothing
         if (parseInt(id) === parseInt(draggedId)) { return null };
+
         try {
             const response = api.patch(`${baseUrl}/${type}/${draggedId}/${id}/move`, {
                 headers: {
@@ -154,7 +156,6 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
     };
 
     const handleUploadFolder = async (event) => {
-        setIsLoading(true);
         event.stopPropagation();
         event.preventDefault();
         const items = event.dataTransfer.items;
@@ -185,156 +186,166 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
             }
             setUpdated(true);
         }
+        setIsLoading(false);
     };
 
-        const traverseFileTree = async (item, parentId, path = '') => {
-            if (item.isFile) {
-                item.file((file) => {
-                    console.log('File:', file.name);
-                    const formData = new FormData();
-                    formData.append('files', file);
-                    formData.append('email', localStorage.getItem('email'));
-                    formData.append('folderId', folderId);
-                    let postUrl = `${baseUrl}/folders/${parentId}/upload`;
+    const traverseFileTree = async (item, parentId, path = '') => {
+        setIsLoading(true);
+        if (item.isFile) {
+            item.file((file) => {
+                console.log('File:', file.name);
+                const formData = new FormData();
+                formData.append('files', file);
+                formData.append('email', localStorage.getItem('email'));
+                formData.append('folderId', folderId);
+                let postUrl = `${baseUrl}/folders/${parentId}/upload`;
 
-                    api.post(postUrl, formData, {
-                        headers: {
-                            'Content-Type': 'multipart/form-data',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        withCredentials: true
-                    });
-                });
-            } else if (item.isDirectory) {
-                const requestData = {
-                    name: item.name,
-                    parent_id: parentId,
-                    email: localStorage.getItem('email')
-                };
-                const config = {
+                api.post(postUrl, formData, {
                     headers: {
+                        'Content-Type': 'multipart/form-data',
                         'Authorization': `Bearer ${token}`
                     },
                     withCredentials: true
-                };
-                const response = await api.post(`${baseUrl}/folders/`, requestData, config);
-                console.log('Folder created:', response.data);
-
-                parentId = response.data.id;
-
-                const dirReader = item.createReader();
-                dirReader.readEntries((entries) => {
-                    for (let i = 0; i < entries.length; i++) {
-
-                        traverseFileTree(entries[i], parentId, path + item.name + '/');
-                    }
                 });
-            }
+            });
+        } else if (item.isDirectory) {
+            const requestData = {
+                name: item.name,
+                parent_id: parentId,
+                email: localStorage.getItem('email')
+            };
+            const config = {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                withCredentials: true
+            };
+            const response = await api.post(`${baseUrl}/folders/`, requestData, config);
+            console.log('Folder created:', response.data);
 
+            parentId = response.data.id;
+
+            const dirReader = item.createReader();
+            dirReader.readEntries((entries) => {
+                for (let i = 0; i < entries.length; i++) {
+
+                    traverseFileTree(entries[i], parentId, path + item.name + '/');
+                }
+            });
         }
 
+    }
 
-        const renderFolders = () => {
-            if (folders && folders.length === 0) {
-                return <p>No folders found</p>;
-            } else {
-                return folders.filter(folder => folder.parent_id === folderId).map(folder => (
-                    <div key={folder.id} className='flexCenter' >
-                        <Card className="folder droppable-card"
-                            onClick={() => handleClick(folder.id)} style={{ width: '18rem' }}
-                            draggable={true}
-                            onDragStart={(e) => {
+
+    const renderFolders = () => {
+        if (folders && folders.length === 0) {
+            return <p>No folders found</p>;
+        } else {
+            return folders.filter(folder => folder.parent_id === folderId).map(folder => (
+                <div key={folder.id} className='flexCenter' >
+                    <Card className="folder droppable-card"
+                        onClick={() => handleClick(folder.id)}
+                        style={{ width: '18rem' }}
+                    >
+                      
+                        <Card.Body>
+                            <Card.Title>
+                                {showRename && showRenameId === folder.id
+                                    ? <RenameFolder folderId={folder.id} setFolders={setFolders} setUpdated={setUpdated} folderName={folder.name} setShowRename={setShowRename} />
+                                    : folder.name}
+                            </Card.Title>
+                        </Card.Body>
+                    </Card>
+                    <Dropdown>
+                        <Dropdown.Toggle variant="dark" id="dropdown-basic" 
+                        draggable={showRename ? false : true}
+                        onDragStart={(e) => {
+                            if (!showRename) {
                                 const dragData = JSON.stringify({ id: folder.id, type: 'folders' });
                                 e.dataTransfer.setData('application/json', dragData);
-                            }}
-                            onDragOver={(e) => e.preventDefault()}
-                            onDrop={(e) => handleDrop(e, folder.id)}>
-
-
-                            <Card.Body>
-                                <Card.Title>
-                                    {showRename && showRenameId === folder.id
-                                        ? <RenameFolder folderId={folder.id} setFolders={setFolders} setUpdated={setUpdated} folderName={folder.name} setShowRename={setShowRename} />
-                                        : folder.name}
-                                </Card.Title>
-                            </Card.Body>
-                        </Card>
-                        <Dropdown>
-                            <Dropdown.Toggle variant="dark" id="dropdown-basic" />
-                            <Dropdown.Menu>
-                                <Dropdown.Item>
-                                    <DownloadFolder folderId={folder.id} isLoading={isLoading} setIsLoading={setIsLoading} setShowRename={setShowRename} folderName={folder.name} />
-                                </Dropdown.Item>
-                                <Dropdown.Item>
-                                    <DeleteFolder folderId={folder.id} setFolders={setFolders} />
-                                </Dropdown.Item>
-                                <Dropdown.Item onClick={() => handleClick(folder.id, 'createLink')}>
-                                    Share
-                                </Dropdown.Item>
-                                <Dropdown.Item onClick={() => handleClick(folder.id, 'rename')}>
-                                    Rename
-                                </Dropdown.Item>
-                            </Dropdown.Menu>
-                        </Dropdown>
-                    </div>
-                ));
-            }
-        };
-
-        let isRoot = folderId === rootFolderId;
-
-
-
-        if (!loggedIn) {
-            return (
-                <div>
-                    <h2 className='driveTitle'>My drive</h2>
-                    <p>{shared ? <span>This is a private folder  </span> : <span>You need to Sign In to access your drive</span>}
-                        <a href='/login' style={{ marginLeft: '10px', marginRight: '10px' }}>Sign in</a>
-                        <a href='/register'>Register</a></p>
-                </div>
-            );
-
-        } else {
-            return (
-                <Container>
-                    <Row>
-                        <Col><h2 className='driveTitle'>{shared ? 'Shared Drive' : 'My drive'} </h2></Col>
-                    </Row>
-                    <Row className="drive">
-
-                        <div className="folders" style={{ marginTop: '1rem', marginBottom: '1rem' }}
-                            onDragOver={(e) => e.preventDefault()}
-                            onDrop={(e) => handleUploadFolder(e)}>
-                            <h3 id='folderName'>{folderName}</h3>
-
-                            {!isRoot &&
-                                <Button variant='secondary' style={{ width: '100%', marginTop: '3rem', marginBottom: '2rem' }}
-                                    onDragOver={(e) => e.preventDefault()}
-
-                                    onClick={handleBackClick} onDrop={e => handleDrop(e, findParentFolderId(folders, folderId))}>
-                                    ...
-                                </Button>}
-
-                            {renderFolders(folders)}
-
-                            <CreateFolder setFolders={setFolders} folderId={folderId} />
-
-                            <FileList folderId={folderId} isNotRootFolder={folderId !== null} setIsLoading={setIsLoading} linkToken={url} updated={updated} setUpdated={setUpdated} />
-                            {showCreateLink &&
-                                <CreateShareableLink folderId={shareFolderId} folderName={shareFolderName} />}
-
-                            {isLoading &&
-                                <span>Loading please wait...
-                                    <Spinner animation="border" role="status">
-                                        <span className="visually-hidden">
-                                            Loading...</span>
-                                    </Spinner></span>}
-                        </div>
-                    </Row>
-                </Container>
-            );
+                            }
+                        }}
+                        onDragOver={(e) => {
+                            if (!showRename) {
+                                e.preventDefault()
+                            }
+                        }
+                        }
+                        onDrop={(e) =>{ if (!showRename) {handleDrop(e, folder.id)}}}/>
+                        <Dropdown.Menu>
+                            <Dropdown.Item>
+                                <DownloadFolder folderId={folder.id} isLoading={isLoading} setIsLoading={setIsLoading} setShowRename={setShowRename} folderName={folder.name} />
+                            </Dropdown.Item>
+                            <Dropdown.Item>
+                                <DeleteFolder folderId={folder.id} setFolders={setFolders} />
+                            </Dropdown.Item>
+                            <Dropdown.Item onClick={() => handleClick(folder.id, 'createLink')}>
+                                Share
+                            </Dropdown.Item>
+                            <Dropdown.Item onClick={() => handleClick(folder.id, 'rename')}>
+                                Rename
+                            </Dropdown.Item>
+                        </Dropdown.Menu>
+                    </Dropdown>
+                </div >
+            ));
         }
     };
 
-    export default FolderContent;
+    let isRoot = folderId === rootFolderId;
+
+
+
+    if (!loggedIn) {
+        return (
+            <div>
+                <h2 className='driveTitle'>My drive</h2>
+                <p>{shared ? <span>This is a private folder  </span> : <span>You need to Sign In to access your drive</span>}
+                    <a href='/login' style={{ marginLeft: '10px', marginRight: '10px' }}>Sign in</a>
+                    <a href='/register'>Register</a></p>
+            </div>
+        );
+
+    } else {
+        return (
+            <Container>
+                <Row>
+                    <Col><h2 className='driveTitle'>{shared ? 'Shared Drive' : 'My drive'} </h2></Col>
+                </Row>
+                <Row className="drive">
+
+                    <div className="folders" style={{ marginTop: '1rem', marginBottom: '1rem' }}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={(e) => handleUploadFolder(e)}>
+                        <h3 id='folderName'>{folderName}</h3>
+
+                        {!isRoot &&
+                            <Button variant='secondary' style={{ width: '100%', marginTop: '3rem', marginBottom: '2rem' }}
+                                onDragOver={(e) => e.preventDefault()}
+
+                                onClick={handleBackClick} onDrop={e => handleDrop(e, findParentFolderId(folders, folderId))}>
+                                ...
+                            </Button>}
+
+                        {renderFolders(folders)}
+
+                        <CreateFolder setFolders={setFolders} folderId={folderId} />
+
+                        <FileList folderId={folderId} isNotRootFolder={!isRoot} setIsLoading={setIsLoading} linkToken={url} updated={updated} setUpdated={setUpdated} showRenameFile={showRenameFile} setShowRenameFile={setShowRenameFile} />
+                        {showCreateLink &&
+                            <CreateShareableLink folderId={shareFolderId} folderName={shareFolderName} />}
+
+                        {isLoading &&
+                            <span>Loading please wait...
+                                <Spinner animation="border" role="status">
+                                    <span className="visually-hidden">
+                                        Loading...</span>
+                                </Spinner></span>}
+                    </div>
+                </Row>
+            </Container>
+        );
+    }
+};
+
+export default FolderContent;

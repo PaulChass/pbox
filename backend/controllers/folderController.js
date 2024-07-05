@@ -277,10 +277,8 @@ exports.renameFolder = async (req, res) => {
       if (!folder) {
           return res.status(404).send('Folder not found');
       }
-
       folder.name = name;
       await folder.save();
-
       res.status(200).json({ message: 'Folder renamed successfully' });
   } catch (error) {
       console.error('Failed to rename folder:', error);
@@ -291,7 +289,10 @@ exports.renameFolder = async (req, res) => {
 
 exports.moveFolder = async (req, res) => {
   const folderId = req.params.folderId;
-  const newParentId = req.params.newFolderId;
+  let newParentId = req.params.newFolderId;
+  if (!newParentId) {
+      newParentId = null; 
+  } 
   console.log('Folder ID:', req.body);
   console.log('New Parent ID:', newParentId);
   try {
