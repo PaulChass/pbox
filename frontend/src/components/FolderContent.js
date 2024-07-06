@@ -26,6 +26,7 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
     const [showRename, setShowRename] = useState(false);
     const [showRenameId, setShowRenameId] = useState(null);
     const [showRenameFile, setShowRenameFile] = useState(false);
+    const [isMovable, setIsMovable] = useState(false);
 
     const url = useParams().token;
 
@@ -38,9 +39,7 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
             withCredentials: true
         };
 
-
         if (shared) {
-
             try {
                 const response = await api.get(`${baseUrl}/shareable-links/${url}`, reqparams);
                 setFolders(response.data.folders);
@@ -71,17 +70,16 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
                 console.error('Error fetching folders:', error);
             }
         }
-
         setUpdated(false);
         setShowCreateLink(false);
         setShowRename(false);
-
     }
 
     useEffect(() => {
         fetchFolders(token);
     }, [token, updated]);
 
+    
     const handleClick = (id, type = 'null') => {
         switch (type) {
             case 'createLink':
@@ -99,6 +97,11 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
                 //transform button into textarea 
                 setShowRenameId(id);
                 setShowRename(true);
+                break;
+
+            case 'move':
+                setIsMovable(true);
+                alert('You can now drag folders and files to another folder.');
                 break;
 
             default:
@@ -148,6 +151,7 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
             }
             );
             console.log('Folder moved:', response.data);
+            setIsMovable(false)
             setUpdated(true);
         }
         catch (error) {
@@ -165,7 +169,10 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
             const item = items[i].webkitGetAsEntry();
             if (item) {
                 if (item.isFile) {
+                    setIsLoading(true);
+
                     item.file((file) => {
+
                         console.log('File:', file.name);
                         const formData = new FormData();
                         formData.append('files', file);
@@ -181,6 +188,7 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
                         });
                     });
                 } else if (item.isDirectory) {
+                    setIsLoading(true);
                     traverseFileTree(item, parentId);
                 }
             }
@@ -246,8 +254,16 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
                     <Card className="folder droppable-card"
                         onClick={() => handleClick(folder.id)}
                         style={{ width: '18rem' }}
+                        draggable={isMovable ? true : false}
+                        onDragStart={(e) => {
+                            if (isMovable) {
+                                const dragData = JSON.stringify({ id: folder.id, type: 'folders' });
+                                e.dataTransfer.setData('application/json', dragData);}
+                        }}
+                        onDragOver={(e) => {e.preventDefault() }}
+                        onDrop={(e) => { handleDrop(e, folder.id) }}
                     >
-                      
+
                         <Card.Body>
                             <Card.Title>
                                 {showRename && showRenameId === folder.id
@@ -257,21 +273,7 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
                         </Card.Body>
                     </Card>
                     <Dropdown>
-                        <Dropdown.Toggle variant="dark" id="dropdown-basic" 
-                        draggable={showRename ? false : true}
-                        onDragStart={(e) => {
-                            if (!showRename) {
-                                const dragData = JSON.stringify({ id: folder.id, type: 'folders' });
-                                e.dataTransfer.setData('application/json', dragData);
-                            }
-                        }}
-                        onDragOver={(e) => {
-                            if (!showRename) {
-                                e.preventDefault()
-                            }
-                        }
-                        }
-                        onDrop={(e) =>{ if (!showRename) {handleDrop(e, folder.id)}}}/>
+                        <Dropdown.Toggle variant="dark" id="dropdown-basic" />
                         <Dropdown.Menu>
                             <Dropdown.Item>
                                 <DownloadFolder folderId={folder.id} isLoading={isLoading} setIsLoading={setIsLoading} setShowRename={setShowRename} folderName={folder.name} />
@@ -284,6 +286,9 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
                             </Dropdown.Item>
                             <Dropdown.Item onClick={() => handleClick(folder.id, 'rename')}>
                                 Rename
+                            </Dropdown.Item>
+                            <Dropdown.Item onClick={() => handleClick(folder.id, 'move')}>
+                                Move
                             </Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>
@@ -331,7 +336,12 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
 
                         <CreateFolder setFolders={setFolders} folderId={folderId} />
 
-                        <FileList folderId={folderId} isNotRootFolder={!isRoot} setIsLoading={setIsLoading} linkToken={url} updated={updated} setUpdated={setUpdated} showRenameFile={showRenameFile} setShowRenameFile={setShowRenameFile} />
+                        {!isRoot &&<FileList folderId={folderId} isNotRootFolder={!isRoot} setIsLoading={setIsLoading} linkToken={url} 
+                                                updated={updated} setUpdated={setUpdated} 
+                                                showRenameFile={showRenameFile} setShowRenameFile={setShowRenameFile} 
+                                                isMovable={isMovable} setIsMovable={setIsMovable}
+                                                />}
+
                         {showCreateLink &&
                             <CreateShareableLink folderId={shareFolderId} folderName={shareFolderName} />}
 

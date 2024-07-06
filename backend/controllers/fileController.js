@@ -53,7 +53,7 @@ exports.renameFile = async (req, res) => {
         }
 
         const oldPath = file.path;
-        const newPath = path.join(__dirname, '..', 'uploads', name);
+        const newPath = path.join(__dirname, '..', 'uploads',file.folder_id.toString(), name);
         await fs.rename(oldPath, newPath);
         file.name = name;
         file.path = newPath;

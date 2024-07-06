@@ -111,7 +111,7 @@ exports.uploadFiles = (req, res) => {
           name: file.originalname,
           path: file.path,
           size: file.size,
-          folder_id: folderId, // Use the folder_id obtained from ensureFolderStructure
+          folder_id: folderId || null, // Use the folder_id obtained from ensureFolderStructure
         });
       }
 

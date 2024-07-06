@@ -10,7 +10,7 @@ import {  Dropdown } from 'react-bootstrap';
 
 
 
-const FilesList = ({ folderId, linkToken, isNotRootFolder, setIsLoading, updated, setUpdated, showRenameFile, setShowRenameFile }) => {
+const FilesList = ({ folderId, linkToken, isNotRootFolder, setIsLoading, updated, setUpdated, showRenameFile, setShowRenameFile, isMovable , setIsMovable }) => {
     const [files, setFiles] = useState([]);
     const [error, setError] = useState(null);
     const token = localStorage.getItem('token');   
@@ -24,12 +24,16 @@ const FilesList = ({ folderId, linkToken, isNotRootFolder, setIsLoading, updated
     }, [folderId, location.pathname, updated]);
 
 
-    const handleClick = (id) => {
+    const handleClick = (id, type) => {
+        if (type === 'move') {
+            setIsMovable(true);
+            alert('You can now drag folders and files to another folder.');
+        }
+        if (type === 'renameFile') {
                 setShowRenameFileId(id);
                 setShowRenameFile(true);
-                console.log(id);
-                console.log(showRenameFileId)
         }
+    };
     
 
     const fetchFiles = async () => {
@@ -62,6 +66,13 @@ const FilesList = ({ folderId, linkToken, isNotRootFolder, setIsLoading, updated
             <span>
                 {files.map(file => (
                     <li key={file.id} style={{display:'flex',justifyContent:'center'}} 
+                    draggable={isMovable? true :false }
+                    onDragStart={(e) => {
+                         
+                        const dragData = JSON.stringify({ id: file.id, type: 'files' });
+                        e.dataTransfer.setData('application/json', dragData);}
+                      }                        
+                    onDragOver={(e) => e.preventDefault()}
                        >
                         
                         {(showRenameFile && showRenameFileId == file.id) ?
@@ -70,13 +81,7 @@ const FilesList = ({ folderId, linkToken, isNotRootFolder, setIsLoading, updated
                              }
                         <Dropdown >
                         <Dropdown.Toggle variant="dark" id="dropdown-filelist"
-                         draggable={showRenameFile? false :true }
-                         onDragStart={(e) => {
-                             if(!showRenameFile){ 
-                             const dragData = JSON.stringify({ id: file.id, type: 'files' });
-                             e.dataTransfer.setData('application/json', dragData);}
-                           }}                        
-                         onDragOver={(e) => e.preventDefault()}>
+                         >
                         </Dropdown.Toggle>
                         <Dropdown.Menu>
                             <Dropdown.Item >                    
@@ -87,7 +92,10 @@ const FilesList = ({ folderId, linkToken, isNotRootFolder, setIsLoading, updated
                             </Dropdown.Item>
                             <Dropdown.Item onClick={() => handleClick(file.id, 'renameFile')}>
                                 Rename
-                            </Dropdown.Item>                         
+                            </Dropdown.Item>      
+                            <Dropdown.Item onClick={() => handleClick(file.id, 'move')}>
+                                Move
+                            </Dropdown.Item>                             
                         </Dropdown.Menu>
                     </Dropdown>
                     
