@@ -36,6 +36,15 @@ const CreateShareableLink = ({ folderId, folderName }) => {
     }
   };
 
+  const copyToClipboard = (link) => {
+    navigator.clipboard.writeText(link).then(() => {
+      // Optional: Display a message that the link was copied.
+      alert("Link copied to clipboard!");
+    }, (err) => {
+      console.error('Could not copy text: ', err);
+    });
+  };
+
   return (
     <div className='shareableLink'>
       <h2>Create share link for: {folderName}</h2>
@@ -66,8 +75,9 @@ const CreateShareableLink = ({ folderId, folderName }) => {
           <div>
             <p>Shareable Link:</p>
             <a href={`https://pbox.paulchasseuil.fr/shareable-link/${shareableLink.token}`} target="_blank" rel="noopener noreferrer">
-              Click to Access
+            {`https://pbox.paulchasseuil.fr/shareable-link/${shareableLink.token}`}
             </a>
+            <Button onClick={() => copyToClipboard(`https://pbox.paulchasseuil.fr/shareable-link/${shareableLink.token}`)}>Copy Link</Button>
           </div>
         )}
       </form>

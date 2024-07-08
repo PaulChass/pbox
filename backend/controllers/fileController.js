@@ -1,20 +1,46 @@
 const File = require('../models/File');
 const path = require('path');
-const fs = require('fs/promises')
-// Fetch files in a folder
+const fs = require('fs')
 
+
+// Fetch files by Id
 exports.downloadFile = async (req, res) => {
-    const fileId = req.params.fileId;
+     const fileId = req.params.fileId;
     const file = await File.findOne({ where: { id: fileId } });
     if (!file) {
         return res.status(404).json({ error: 'File not found' });
     }
-    const filePath = path.join(__dirname, '..', 'uploads', file.folder_id.toString()  ,file.name);
-    console.log(filePath);
-    res.download(filePath);  
-}
+    const filePath = path.join(__dirname, '..', 'uploads', file.folder_id.toString(), file.name);
 
-// Delete file function
+    try {
+        const stats = await fs.promises.stat(filePath);
+        const fileSize = stats.size;
+        let bytesSent = 0;
+
+        res.writeHead(200, {
+            'Content-Length': fileSize,
+            'Content-Type': 'application/octet-stream',
+            'Content-Disposition': `attachment; filename=${file.name}`,
+        });
+
+        const readStream = fs.createReadStream(filePath);
+        readStream.on('data', (chunk) => {
+            bytesSent += chunk.length;
+            console.log(`Sent ${bytesSent} of ${fileSize} bytes (${((bytesSent / fileSize) * 100).toFixed(2)}%)`);
+        });
+        readStream.pipe(res);
+
+        readStream.on('end', () => {
+            res.end();
+            console.log('Download completed.');
+        });
+    } catch (err) {
+        console.error("Error during download: ", err);
+        res.status(500).json({ error: 'Error during file download' });
+    }
+};
+
+// Delete file by Id
 exports.deleteFile = async (req, res) => {
 
     try {
@@ -41,7 +67,7 @@ exports.deleteFile = async (req, res) => {
     }
 };
 
-
+// Rename file by Id (post body should contain the new 'name' field)
 exports.renameFile = async (req, res) => {
     const fileId = req.params.fileId;
     const { name } = req.body;
@@ -66,6 +92,7 @@ exports.renameFile = async (req, res) => {
     }
 };
 
+// Move file to a different folder by Id and new folder Id
 exports.moveFile = async (req, res) => {    
     const fileId = req.params.fileId;
     const  folderId  = req.params.newFolderId;

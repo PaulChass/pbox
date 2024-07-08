@@ -16,11 +16,10 @@ const checkShareableLinkType = async (req, res, next) => {
         // Attach the shareable link to the request object
         req.shareableLink = shareableLink;
 
-        if (shareableLink.type === 'private') {
+          if (shareableLink.type === 'private') {
             // If the link is private, proceed to authenticate middleware
             return authenticate(req, res, next);
         }
-
         // If the link is public, proceed without authentication
         next();
     } catch (error) {
