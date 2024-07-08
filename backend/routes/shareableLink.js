@@ -31,13 +31,13 @@ router.post('/create',  async (req, res) => {
 });
 
 // Route to retrieve folders based on shareable link token
-router.get('/:token', checkShareableLinkType, async (req, res) => {
+// add chackShareableLinkType to eable auht 
+router.get('/:token',  async (req, res) => {
   const token = req.params.token;
   try {
     // Find the shareable link in the database
     const shareableLink = await ShareableLink.findOne({ where: { token } });
     
-    console.log(shareableLink.type);
     if (!shareableLink) {
       return res.status(404).json({ error: 'Shareable link not found' });
     }
@@ -47,7 +47,7 @@ router.get('/:token', checkShareableLinkType, async (req, res) => {
     let folders = await Folder.findAll({ where: { parent_id: shareableLink.folderId } });
     let files = await File.findAll({ where: { folder_id: shareableLink.folderId } });
 
-
+    
     // Recursive function to get all subfolders and their files
     const getSubfoldersAndFiles = async (parentFolders) => {
       for (const parentFolder of parentFolders) {

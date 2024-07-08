@@ -53,9 +53,9 @@ exports.deleteFile = async (req, res) => {
 
         // Assuming 'file.path' is available and contains the relative path
         const filePath = path.resolve(file.path); // Adjust based on actual file location
-
+        console.log(filePath);
         // Delete the file from the file system
-        await fs.unlink(filePath); // Use await with the promise-based fs.unlink
+        await fs.promises.unlink(filePath); // Use await with the promise-based fs.unlink
 
         // Delete the record from the database
         await file.destroy(); // Ensure this is awaited as well
@@ -80,7 +80,7 @@ exports.renameFile = async (req, res) => {
 
         const oldPath = file.path;
         const newPath = path.join(__dirname, '..', 'uploads',file.folder_id.toString(), name);
-        await fs.rename(oldPath, newPath);
+        await fs.promises.rename(oldPath, newPath);
         file.name = name;
         file.path = newPath;
         await file.save();
@@ -102,10 +102,10 @@ exports.moveFile = async (req, res) => {
         if (!file) {
             return res.status(404).send('File not found');
         }
-        console.log(file);
+        const newPath = path.join(__dirname, '..', 'uploads', folderId.toString(), file.name);
         file.folder_id = folderId;
+        file.path = newPath;
         await file.save();
-        console.log(file);
         res.send('File moved successfully');
 
     } catch (error) {

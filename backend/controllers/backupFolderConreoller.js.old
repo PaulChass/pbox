@@ -6,7 +6,7 @@ const archiver = require('archiver');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
-const  Busboy  = require('busboy');
+const { Busboy } = require('busboy');
 
 
 // Fetch all folders for a specific user
@@ -90,10 +90,8 @@ async function ensureFolderStructure(folderPath, rootFolderId) {
 }
 
 // Upload files to a specific folder
-// Upload files to a specific folder
 exports.uploadFiles = (req, res) => {
   const rootFolderId = req.params.folderId; // This is the ID of the folder where the upload was initiated
-  
   upload.array('files')(req, res, async (err) => {
     if (err instanceof multer.MulterError) {
       console.error('Multer error:', err);
@@ -102,14 +100,35 @@ exports.uploadFiles = (req, res) => {
       console.error('Unknown error during upload:', err);
       return res.status(500).json({ error: 'Failed to upload files' });
     }
-    console.log('Req Files',req.files);
+    console.log('Req Files', req.files);
 
     try {
       for (const file of req.files) {
         // Ensure the folder structure for each file and get the folder_id
         const folderId = await ensureFolderStructure(file.folderPath || '', rootFolderId);
-        
+        const busboy = new Busboy({ headers: req.headers });
+  let bytesReceived = 0;
 
+  busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
+    file.on('data', (data) => {
+      bytesReceived += data.length;
+      console.log(`Received ${bytesReceived} bytes`);
+    });
+
+    file.on('end', () => {
+      console.log(`File [${filename}] Finished`);
+    });
+
+    // Process file here (e.g., save to disk)
+  });
+ 
+  busboy.on('finish', () => {
+    console.log('Done parsing form!');
+    res.writeHead(200, { 'Connection': 'close' });
+    res.end("Upload complete!");
+  });
+
+  req.pipe(busboy);
         // Create the file record with the correct folder_id
         await File.create({
           name: file.originalname,
