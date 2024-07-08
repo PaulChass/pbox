@@ -16,11 +16,6 @@ const Login = () => {
       alert('Login successful');
       localStorage.setItem('email', email); // Store username in localStorage
       localStorage.setItem('token', response.data.token); // Store token in localStorage
-      let folderLink = localStorage.getItem('gotoUrl');
-      if(folderLink!==undefined && folderLink !== null)        {
-          localStorage.removeItem('gotoUrl');
-          window.location.replace('https://pbox.paulchasseuil.fr/shareable-link/'+folderLink)
-        }
       navigate('/');
 
     } catch (error) {

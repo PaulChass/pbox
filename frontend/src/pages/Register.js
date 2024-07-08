@@ -15,11 +15,8 @@ const Register = () => {
     try {
       await api.post(`${baseUrl}/auth/register`, { username, email, password });      alert('User registered successfully');      
      
-      if(localStorage.getItem('tokenUrl')) {
-          window.location.replace('http://localhost:3000/shareable-link/'+localStorage.getItem('tokenUrl'))
-        }
       
-      else{navigate('/login')};
+      navigate('/login');
        
 
     } catch (error) {
