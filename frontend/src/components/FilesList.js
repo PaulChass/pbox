@@ -10,7 +10,11 @@ import {  Dropdown } from 'react-bootstrap';
 
 
 
-const FilesList = ({ folderId, linkToken, isNotRootFolder, setIsLoading, updated, setUpdated, showRenameFile, setShowRenameFile, isMovable , setIsMovable }) => {
+const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdated,
+                     showRenameFile, setShowRenameFile, isMovable , setIsMovable,
+                     setDownloadProgress
+
+                     }) => {
     const [files, setFiles] = useState([]);
     const [error, setError] = useState(null);
     const token = localStorage.getItem('token');   
@@ -39,9 +43,7 @@ const FilesList = ({ folderId, linkToken, isNotRootFolder, setIsLoading, updated
     const fetchFiles = async () => {
         try {
             let posturl = `${baseUrl}/folders/${folderId}/files`;
-            if(linkToken!==undefined) {
-                posturl = `${baseUrl}/shareable-links/${folderId}/files`;
-             }
+        
             const response = await api.get(posturl, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -71,7 +73,7 @@ const FilesList = ({ folderId, linkToken, isNotRootFolder, setIsLoading, updated
                          
                         const dragData = JSON.stringify({ id: file.id, type: 'files' });
                         e.dataTransfer.setData('application/json', dragData);}
-                      }                        
+                      }                       
                     onDragOver={(e) => e.preventDefault()}
                        >
                         
@@ -85,7 +87,8 @@ const FilesList = ({ folderId, linkToken, isNotRootFolder, setIsLoading, updated
                         </Dropdown.Toggle>
                         <Dropdown.Menu>
                             <Dropdown.Item >                    
-                            <DownloadFile file={file} setIsLoading={setIsLoading}/>
+                            <DownloadFile file={file} setIsLoading={setIsLoading} 
+                                    setDownloadProgress={setDownloadProgress}/>
                             </Dropdown.Item>
                             <Dropdown.Item >                    
                             <DeleteFile fileId={file.id} setFiles={setFiles} />
@@ -103,7 +106,7 @@ const FilesList = ({ folderId, linkToken, isNotRootFolder, setIsLoading, updated
                 ))}
                 {files.length === 0 && <p>No files found</p>}
             </span>
-            {isNotRootFolder && <FileUpload folderId={folderId} setUpdated={setUpdated} linkToken={linkToken} setIsLoading={setIsLoading}/>}
+            {isNotRootFolder && <FileUpload folderId={folderId} setIsLoading={setIsLoading} setFiles={setFiles} files={files}/>}
         </div>
     );
 };

@@ -9,7 +9,7 @@ import DownloadFolder from './DownloadFolder';
 import DeleteFolder from './DeleteFolder';
 import RenameFolder from './RenameFolder';
 import CreateShareableLink from './CreateShareableLink';
-import { Container, Row, Col, Button, Card, Dropdown, Spinner } from 'react-bootstrap';
+import { Container, Row, Col, Button, Card, Dropdown, Spinner, ProgressBar } from 'react-bootstrap';
 
 import '../styles/FolderContent.css';
 
@@ -27,6 +27,9 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
     const [showRenameId, setShowRenameId] = useState(null);
     const [showRenameFile, setShowRenameFile] = useState(false);
     const [isMovable, setIsMovable] = useState(false);
+    const [downloadProgress, setDownloadProgress] = useState(0);
+
+
 
     const url = useParams().token;
 
@@ -50,9 +53,7 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
                     setRootFolderId(response.data.folder.id);
                 }
             } catch (error) {
-                if (error.response.status === 401) {
-                    alert("ERror 401", url
-                    )
+                if (error) {
                     setLoggedIn(false);
                     localStorage.setItem('gotoUrl', url);
                 }
@@ -79,7 +80,7 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
         fetchFolders(token);
     }, [token, updated]);
 
-    
+
     const handleClick = (id, type = 'null') => {
         switch (type) {
             case 'createLink':
@@ -138,8 +139,6 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
         const draggedData = JSON.parse(e.dataTransfer.getData('application/json'));
         const draggedId = draggedData.id;
         const type = draggedData.type;
-        console.log('Dragged id:', draggedId);
-        console.log('Type:', type);
         // if folder is dropped on itself do nothing
         if (parseInt(id) === parseInt(draggedId)) { return null };
 
@@ -258,9 +257,10 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
                         onDragStart={(e) => {
                             if (isMovable) {
                                 const dragData = JSON.stringify({ id: folder.id, type: 'folders' });
-                                e.dataTransfer.setData('application/json', dragData);}
+                                e.dataTransfer.setData('application/json', dragData);
+                            }
                         }}
-                        onDragOver={(e) => {e.preventDefault() }}
+                        onDragOver={(e) => { e.preventDefault() }}
                         onDrop={(e) => { handleDrop(e, folder.id) }}
                     >
 
@@ -276,7 +276,7 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
                         <Dropdown.Toggle variant="dark" id="dropdown-basic" />
                         <Dropdown.Menu>
                             <Dropdown.Item>
-                                <DownloadFolder folderId={folder.id} isLoading={isLoading} setIsLoading={setIsLoading} setShowRename={setShowRename} folderName={folder.name} />
+                                <DownloadFolder folderId={folder.id} isLoading={isLoading} setIsLoading={setIsLoading} setShowRename={setShowRename} folderName={folder.name} setDownloadProgress={setDownloadProgress} />
                             </Dropdown.Item>
                             <Dropdown.Item>
                                 <DeleteFolder folderId={folder.id} setFolders={setFolders} />
@@ -305,9 +305,12 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
         return (
             <div>
                 <h2 className='driveTitle'>My drive</h2>
-                <p>{shared ? <span>This is a private folder  </span> : <span>You need to Sign In to access your drive</span>}
-                    <a href='/login' style={{ marginLeft: '10px', marginRight: '10px' }}>Sign in</a>
-                    <a href='/register'>Register</a></p>
+                <p style={{color:'black'}}>{shared ? <span >This is a private folder  </span> : <span>You need to Sign In to access your drive</span>}
+                   <a href='/login' style={{ marginLeft: '10px', marginRight: '10px' }}>
+                   <Button> Sign in</Button></a>
+                   <a href='/register'> 
+                   <Button>Register</Button></a>
+                    </p>
             </div>
         );
 
@@ -336,21 +339,33 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
 
                         <CreateFolder setFolders={setFolders} folderId={folderId} />
 
-                        {!isRoot &&<FileList folderId={folderId} isNotRootFolder={!isRoot} setIsLoading={setIsLoading} linkToken={url} 
-                                                updated={updated} setUpdated={setUpdated} 
-                                                showRenameFile={showRenameFile} setShowRenameFile={setShowRenameFile} 
-                                                isMovable={isMovable} setIsMovable={setIsMovable}
-                                                />}
+                        {(!isRoot || shared)
+                            && <FileList folderId={folderId} isNotRootFolder={!isRoot}
+                                setIsLoading={setIsLoading}
+                                updated={updated} setUpdated={setUpdated}
+                                showRenameFile={showRenameFile} setShowRenameFile={setShowRenameFile}
+                                isMovable={isMovable} setIsMovable={setIsMovable}
+                                setDownloadProgress={setDownloadProgress}
+                            />}
 
                         {showCreateLink &&
                             <CreateShareableLink folderId={shareFolderId} folderName={shareFolderName} />}
 
+                        {
+                            downloadProgress > 0 && downloadProgress < 100 &&
+                            <ProgressBar now={downloadProgress} label={`${downloadProgress}%`} />
+                        }
                         {isLoading &&
                             <span>Loading please wait...
                                 <Spinner animation="border" role="status">
                                     <span className="visually-hidden">
                                         Loading...</span>
                                 </Spinner></span>}
+
+
+
+
+
                     </div>
                 </Row>
             </Container>
