@@ -4,7 +4,7 @@
     overflow-y: auto;
     overflow-x: hidden;
     padding: 2em;
-    background-color: rgb(0 169 247 / 20%);
+    background-color: #354653;
     margin: auto!important;
     border-radius: 15px;
     padding-bottom: 50px;
@@ -35,7 +35,6 @@
     
 
 body {
-    background-image: url('https://balldontlie.fr/bgdark.avif');
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-size: cover;
@@ -44,18 +43,17 @@ body {
   }
 
 #folderName {
-color: white;
-font-size: 2rem;
+font-size: 1.2rem;
 }
 
 .driveTitle {
-    font-size: 3rem;
+    font-size: 2rem;
     font-weight: bold;
     width: 100%;
     text-align: center;
-    margin-top: 3rem!important;
-    margin-bottom: 3rem;
-    color:white
+    margin-top: 2rem!important;
+    margin-bottom: 2rem;
+    color: black;    
 }
 
 .section {
@@ -64,7 +62,7 @@ font-size: 2rem;
     color:white
 }
 li{
-    font-size: 1.1rem;
+    font-size: 1rem;
 }
 
 .shareableLink{
@@ -77,7 +75,7 @@ li{
 }
 
 .shareableLink  h2{
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     font-weight: bold;
     text-align: center;
     margin-bottom: 2rem;
@@ -89,5 +87,5 @@ li{
 }
 
 .file_form {
-    width: 70%
+    width: 95%
 }
