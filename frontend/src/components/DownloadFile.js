@@ -30,13 +30,13 @@ const DownloadFile = ({ file, isLoading, setIsLoading, setDownloadProgress }) =>
         } catch (error) {
             console.error('Error downloading file:', error);
         } finally {
-            setIsLoading(false);
             setDownloadProgress(0);
+            setIsLoading(false);
         }
     };
 
     return (<div onClick={handleDownload}>
-        {isLoading ? 'Downloading...' : 'Download'}
+        Download
     </div>);
 };
 

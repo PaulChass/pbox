@@ -61,7 +61,12 @@ const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdate
         }
     };
 
- 
+    const truncateFileName = (name) => {
+        if (name.length > 20) {
+            return name.substring(0, 15) + '...'+ name.substring(name.length-5, name.length);
+        }
+        return name;
+    } 
     
     return (
         <div className='section'>
@@ -79,7 +84,8 @@ const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdate
                         
                         {(showRenameFile && showRenameFileId == file.id) ?
                             <RenameFile fileId={file.id} setFiles={setFiles} setShowRenameFile={setShowRenameFile} /> 
-                            : file.name 
+                            : 
+                            truncateFileName(file.name) 
                              }
                         <Dropdown >
                         <Dropdown.Toggle variant="dark" id="dropdown-filelist"

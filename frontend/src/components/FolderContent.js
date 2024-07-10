@@ -20,7 +20,7 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
     const [shareFolderId, setShareFolderId] = useState(null);
     const [shareFolderName, setShareFolderName] = useState('Shared Folder');
     const [isLoading, setIsLoading] = useState(false);
-    const [loggedIn, setLoggedIn] = useState(false);
+    const [isAuth, setIsAuth] = useState(false);
     const [rootFolderId, setRootFolderId] = useState(null);
     const [showCreateLink, setShowCreateLink] = useState(false);
     const [showRename, setShowRename] = useState(false);
@@ -48,13 +48,13 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
                 setFolders(response.data.folders);
                 setFolderId(response.data.folder.id);
                 setFolderName(response.data.folder.name);
-                setLoggedIn(true);
+                setIsAuth(true);
                 if (rootFolderId === null) {
                     setRootFolderId(response.data.folder.id);
                 }
             } catch (error) {
                 if (error) {
-                    setLoggedIn(false);
+                    setIsAuth(false);
                     localStorage.setItem('gotoUrl', url);
                 }
                 console.error('Error fetching folders:', error);
@@ -63,10 +63,10 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
             try {
                 const response = await api.get(`${baseUrl}/folders/${folderId}`, reqparams);
                 setFolders(response.data);
-                setLoggedIn(true);
+                setIsAuth(true);
             } catch (error) {
                 if (error.response.status === 401) {
-                    setLoggedIn(false);
+                    setIsAuth(false);
                 }
                 console.error('Error fetching folders:', error);
             }
@@ -304,7 +304,7 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
 
 
 
-    if (!loggedIn) {
+    if (!isAuth) {
         return (
             <div>
                 <h2 className='driveTitle'>My drive</h2>
@@ -331,13 +331,13 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
                         <h3 id='folderName'>{folderName}</h3>
 
                         {!isRoot &&
-                            <Button variant='secondary' style={{ width: '100%', marginTop: '3rem', marginBottom: '2rem' }}
+                            <Button variant='secondary' 
+                                style={{ width: '100%', marginTop: '3rem', marginBottom: '2rem' }}
                                 onDragOver={(e) => e.preventDefault()}
-
-                                onClick={handleBackClick} onDrop={e => handleDrop(e, findParentFolderId(folders, folderId))}>
+                                onClick={handleBackClick} 
+                                onDrop={e => handleDrop(e, findParentFolderId(folders, folderId))}>
                                 ...
                             </Button>}
-
                         {renderFolders(folders)}
 
                         <CreateFolder setFolders={setFolders} folderId={folderId} />
@@ -364,11 +364,6 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
                                     <span className="visually-hidden">
                                         Loading...</span>
                                 </Spinner></span>}
-
-
-
-
-
                     </div>
                 </Row>
             </Container>
