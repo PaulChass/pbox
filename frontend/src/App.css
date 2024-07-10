@@ -4,7 +4,7 @@ body {
 
 .flex-container{
   display: flex;
-  background-color: #354653;
+  background-color: rgb(1,45,59);
 }
 
 #siteLogo{

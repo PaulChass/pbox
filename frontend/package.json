@@ -12,6 +12,7 @@
     "drag-drop-touch": "^1.3.1",
     "react": "^18.3.1",
     "react-bootstrap": "^2.10.3",
+    "react-device-detect": "^2.2.3",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.23.1",
     "react-scripts": "5.0.1",
@@ -27,7 +28,18 @@
     "extends": [
       "react-app",
       "react-app/jest"
-    ]
+    ],
+    "globals": {
+      "self": "readonly"
+    },
+    "rules": {
+      "no-restricted-globals": [
+        "error",
+        "addEventListener",
+        "fetch",
+        "URL"
+      ]
+    }
   },
   "browserslist": {
     "production": [
