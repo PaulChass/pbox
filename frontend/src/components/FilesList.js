@@ -66,7 +66,7 @@ const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdate
     return (
         <div className='section'>
             <span>
-                {files.map(file => (
+                {files.sort((a, b) => a.name.localeCompare(b.name)).map(file => (
                     <li key={file.id} style={{display:'flex',justifyContent:'center'}} 
                     draggable={isMovable? true :false }
                     onDragStart={(e) => {
@@ -103,7 +103,7 @@ const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdate
                     </Dropdown>
                     
                     </li>
-                ))}
+                ))};
                 {files.length === 0 && <p>No files found</p>}
             </span>
             {isNotRootFolder && <FileUpload folderId={folderId} setIsLoading={setIsLoading} setFiles={setFiles} files={files}/>}

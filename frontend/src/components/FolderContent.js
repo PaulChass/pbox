@@ -248,7 +248,10 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
         if (folders && folders.length === 0) {
             return <p>No folders found</p>;
         } else {
-            return folders.filter(folder => folder.parent_id === folderId).map(folder => (
+            return folders
+            .filter(folder => folder.parent_id === folderId)
+            .sort((a,b) => a.name.localeCompare(b.name))
+            .map(folder => (
                 <div key={folder.id} className='flexCenter' >
                     <Card className="folder droppable-card"
                         onClick={() => handleClick(folder.id)}
