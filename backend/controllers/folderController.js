@@ -73,14 +73,11 @@ const upload = multer({ storage });
 
 async function ensureFolderStructure(folderPath, rootFolderId) {
   let currentParentId = rootFolderId; // Start with the root folder ID
-  const pathParts = folderPath.split('/'); // Assuming folderPath is something like 'folder/subfolder'
-
+  const pathParts = folderPath.split('/'); 
   for (const part of pathParts) {
-    if (!part) continue; // Skip empty parts, could happen if path starts with '/'
-    // Check if folder exists
+    if (!part) continue; 
     let folder = await Folder.findOne({ where: { name: part, parent_id: currentParentId } });
     if (!folder) {
-      // Folder doesn't exist, create it
       folder = await Folder.create({ name: part, parent_id: currentParentId });
     }
     currentParentId = folder.id; // Update currentParentId for the next iteration
@@ -89,7 +86,6 @@ async function ensureFolderStructure(folderPath, rootFolderId) {
   return currentParentId; // Return the ID of the last folder in the path
 }
 
-// Upload files to a specific folder
 // Upload files to a specific folder
 exports.uploadFiles = (req, res) => {
   const rootFolderId = req.params.folderId; // This is the ID of the folder where the upload was initiated

@@ -32,3 +32,9 @@ li {
     display: flex;
     justify-content: center;
 }
+
+#dropdown-files{
+    background-color: rgba(10,10,10, 0);
+    font-size: small;
+    border: none;
+}

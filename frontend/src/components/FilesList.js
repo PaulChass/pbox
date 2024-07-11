@@ -7,6 +7,8 @@ import RenameFile from './RenameFile';
 import { useLocation } from 'react-router-dom';
 import '../styles/FileList.css';
 import {  Dropdown } from 'react-bootstrap';
+import * as BsIcons from "react-icons/bs";
+import {BsThreeDotsVertical} from 'react-icons/bs';
 
 
 
@@ -67,7 +69,68 @@ const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdate
         }
         return name;
     } 
-    
+
+    const fileType = (name) => {
+        const ext = name.split('.').pop();
+        return ext;
+    }
+
+    function getFileIcon(name) {
+        switch(fileType(name)) {
+          case 'pdf':
+            return <BsIcons.BsFileEarmarkPdf style={{marginRight:'5px'}}/>;
+          case 'doc':
+            return <BsIcons.BsFileEarmarkWord style={{marginRight:'5px'}}/>;
+          case 'docx':
+            return <BsIcons.BsFileEarmarkText style={{marginRight:'5px'}}/>;
+          case 'txt':
+            return <BsIcons.BsFileEarmarkText style={{marginRight:'5px'}}/>;
+          case 'jpg':
+          case 'jpeg':
+          case 'png':
+          case 'gif':
+            return <BsIcons.BsFileEarmarkImage style={{marginRight:'5px'}}/>;
+            case 'svg':
+            case 'json':
+            case 'js':
+            case 'css':
+            case 'html':
+            case 'xml':
+            case 'php':
+            return <BsIcons.BsFileEarmarkCode style={{marginRight:'5px'}}/>;
+
+          case 'mp4':
+            case 'avi':
+            case 'mkv':
+            return <BsIcons.BsFileEarmarkPlay style={{marginRight:'5px'}}/>;
+          case 'mp3':
+        case 'wav':
+            return <BsIcons.BsFileEarmarkMusic style={{marginRight:'5px'}}/>;
+          case 'zip':
+          case 'rar':
+            return <BsIcons.BsFileEarmarkZip style={{marginRight:'5px'}}/>;
+          case 'xlsx':
+          case 'xls':
+            return <BsIcons.BsFileEarmarkSpreadsheet style={{marginRight:'5px'}}/>;
+          case 'ppt':
+          case 'pptx':
+            return <BsIcons.BsFileEarmarkPpt style={{marginRight:'5px'}}/>;
+          default:
+            return <BsIcons.BsFileEarmark style={{marginRight:'5px'}}/>;
+        }
+      }
+
+    const displayFile = (name) => {
+        const truncatedName = truncateFileName(name);
+        return (
+            <span style={{margin:'0.2rem'}}>
+                {getFileIcon(name)}
+                {truncatedName}
+            </span>
+        );
+    }
+
+
     return (
         <div className='section'>
             <span>
@@ -82,15 +145,15 @@ const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdate
                     onDragOver={(e) => e.preventDefault()}
                        >
                         
-                        {(showRenameFile && showRenameFileId == file.id) ?
+                        {(showRenameFile && showRenameFileId === file.id) ?
                             <RenameFile fileId={file.id} setFiles={setFiles} setShowRenameFile={setShowRenameFile} /> 
                             : 
-                            truncateFileName(file.name) 
+                            displayFile(file.name)
                              }
                         <Dropdown >
-                        <Dropdown.Toggle variant="dark" id="dropdown-filelist"
-                         >
-                        </Dropdown.Toggle>
+                        <Dropdown.Toggle variant="dark" id="dropdown-files" custom="true" className='no-arrow'>
+                            <BsThreeDotsVertical />
+                        </Dropdown.Toggle>   
                         <Dropdown.Menu>
                             <Dropdown.Item >                    
                             <DownloadFile file={file} setIsLoading={setIsLoading} 

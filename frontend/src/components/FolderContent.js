@@ -55,7 +55,6 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
             } catch (error) {
                 if (error) {
                     setIsAuth(false);
-                    localStorage.setItem('gotoUrl', url);
                 }
                 console.error('Error fetching folders:', error);
             }
@@ -139,9 +138,7 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
         const draggedData = JSON.parse(e.dataTransfer.getData('application/json'));
         const draggedId = draggedData.id;
         const type = draggedData.type;
-        // if folder is dropped on itself do nothing
         if (parseInt(id) === parseInt(draggedId)) { return null };
-
         try {
             const response = api.patch(`${baseUrl}/${type}/${draggedId}/${id}/move`, {
                 headers: {
@@ -235,12 +232,10 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
             const dirReader = item.createReader();
             dirReader.readEntries((entries) => {
                 for (let i = 0; i < entries.length; i++) {
-
                     traverseFileTree(entries[i], parentId, path + item.name + '/');
                 }
             });
         }
-
     }
 
 
@@ -255,7 +250,7 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
                 <div key={folder.id} className='flexCenter' >
                     <Card className="folder droppable-card"
                         onClick={() => handleClick(folder.id)}
-                        style={{ width: '18rem' }}
+                        style={{ width: '12rem',height:'5rem'}}
                         draggable={isMovable ? true : false}
                         onDragStart={(e) => {
                             if (isMovable) {

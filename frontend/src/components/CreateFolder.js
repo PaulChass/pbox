@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import api , { baseUrl } from '../api.js'; // Adjust the path according to your file structure
 import { Button, Alert } from 'react-bootstrap';
+import { BsFolderPlus } from 'react-icons/bs';
 import Form from 'react-bootstrap/Form';
 const CreateFolder = ({ setFolders, folderId }) => {
     const [folderName, setFolderName] = useState('');
+    const [showFolderForm, setShowFolderForm] = useState(false);
     const token = localStorage.getItem('token');   
     const [errorMessage, setErrorMessage] = useState(''); // State to hold error message
 
@@ -33,7 +35,7 @@ const CreateFolder = ({ setFolders, folderId }) => {
 
             // Clear input fields after successful creation
             setFolderName('');
-
+            setShowFolderForm(false);
             // Call setFolders to update structure in FolderTree
             setFolders(prevFolders => [...prevFolders, response.data]); // Assuming response.data is the new folder object
         } catch (error) {
@@ -43,6 +45,7 @@ const CreateFolder = ({ setFolders, folderId }) => {
 
     return (
         <div style={{display:'flex',width: '18rem',margin:'0 auto',justifyContent:'center'}}>
+            {showFolderForm ?
             <Form onSubmit={handleCreateFolder}>
             <Form.Control
                 type="text"
@@ -50,8 +53,11 @@ const CreateFolder = ({ setFolders, folderId }) => {
                 onChange={e => setFolderName(e.target.value)}
                 placeholder="Folder Name"
             />
-            <Button onClick={handleCreateFolder}>Create</Button>
-            </Form>
+            </Form> :
+            <BsFolderPlus style={{fontSize:'3rem', margin:'1rem',marginRight:'3rem'}} onClick={() => {setShowFolderForm(prevState => !prevState)}}/>
+            }
+            
+            
         </div>
     );
 };
