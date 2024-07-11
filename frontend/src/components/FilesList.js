@@ -109,7 +109,7 @@ const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdate
                     </Dropdown>
                     
                     </li>
-                ))};
+                ))}
                 {files.length === 0 && <p>No files found</p>}
             </span>
             {isNotRootFolder && <FileUpload folderId={folderId} setIsLoading={setIsLoading} setFiles={setFiles} files={files}/>}

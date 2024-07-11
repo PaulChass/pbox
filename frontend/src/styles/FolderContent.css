@@ -89,3 +89,7 @@ li{
 .file_form {
     width: 95%
 }
+
+.no-arrow::after {
+    display: none!important
+}

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import api, { baseUrl } from '../api.js'; // Adjust the path according to your file structure
-
+import {BsFolder2Open, BsThreeDotsVertical} from 'react-icons/bs';
 
 import CreateFolder from '../components/CreateFolder';
 import FileList from '../components/FilesList';
@@ -271,13 +271,15 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
                             <Card.Title>
                                 {showRename && showRenameId === folder.id
                                     ? <RenameFolder folderId={folder.id} setFolders={setFolders} setUpdated={setUpdated} folderName={folder.name} setShowRename={setShowRename} />
-                                    : folder.name}
+                                    : 
+                                    <span><BsFolder2Open></BsFolder2Open> {folder.name}</span>}
                             </Card.Title>
                         </Card.Body>
                     </Card>
                     <Dropdown>
-                        <Dropdown.Toggle variant="dark" id="dropdown-basic" />
-                        <Dropdown.Menu>
+                    <Dropdown.Toggle variant="dark" id="dropdown-basic" custom="true" className='no-arrow'>
+                    <BsThreeDotsVertical />
+                    </Dropdown.Toggle>                        <Dropdown.Menu>
                             <Dropdown.Item>
                                 <DownloadFolder folderId={folder.id} isLoading={isLoading} setIsLoading={setIsLoading} setShowRename={setShowRename} folderName={folder.name} setDownloadProgress={setDownloadProgress} />
                             </Dropdown.Item>
