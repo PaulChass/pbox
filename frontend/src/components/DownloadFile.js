@@ -19,6 +19,7 @@ const DownloadFile = ({ file, isLoading, setIsLoading, setDownloadProgress }) =>
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
             });
+            setDownloadProgress(0);
 
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
@@ -29,10 +30,10 @@ const DownloadFile = ({ file, isLoading, setIsLoading, setDownloadProgress }) =>
             document.body.removeChild(link);
         } catch (error) {
             console.error('Error downloading file:', error);
-        } finally {
-            setDownloadProgress(0);
+        } 
             setIsLoading(false);
-        }
+            setDownloadProgress(0);
+        
     };
 
     return (<div onClick={handleDownload}>

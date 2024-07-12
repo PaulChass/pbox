@@ -1,11 +1,17 @@
 import React, { useState } from 'react';
 import api , { baseUrl } from '../api.js'; 
+import { BsXCircle } from 'react-icons/bs';
+import Form from 'react-bootstrap/Form';
+import { FormControl } from 'react-bootstrap';
 
 const RenameFolder = ({ folderId, setUpdated, setShowRename }) => {    
     const [folderName, setFolderName] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
     const handleRename = async () => {
+        if(!folderName.trim()) {
+            return;
+        }
         setIsLoading(true);
         try {
             const requestData = { 
@@ -33,18 +39,22 @@ const RenameFolder = ({ folderId, setUpdated, setShowRename }) => {
 
     return (
         <div>
-            <form onSubmit={(e) => {
+            <Form style={{display:'flex'}} onSubmit={(e) => {
     e.preventDefault();
     handleRename();
 }}>
-            <input
+            <FormControl
                 type="text"
                 value={folderName}
                 onChange={e => setFolderName(e.target.value)}
                 onSubmit={handleRename}
                 placeholder="New Folder Name"
+                className='rename-input'
             />
-           </form>
+            <BsXCircle style={{margin:'0.5rem'}} onClick={()=>{setShowRename(false)}}/>
+
+           </Form>
+
         </div>
     );
 }

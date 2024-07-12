@@ -13,16 +13,34 @@
     margin-bottom: 5rem;
 }
 
+.files{
+    width: 100%;
+    height: 100%;
+    color:white;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 2em;
+    background-color: rgb(1,45,59);
+    margin: auto!important;
+    border-radius: 15px;
+    padding-bottom: 50px;
+    text-align: center;
+    align-items: center;
+    margin-bottom: 5rem;
+    margin-top: 5rem;
+}
 #dropdown-basic{
     width: 100%;
-    margin: 80% 0;    
+    margin: 30% 0;    
+    background-color: rgba(0,0,0,0);
+    border:none;
 }
 
 .folder{
     display: flex;
     align-items: center;
-    padding: 0.5em;
     margin: 0.5em;
+    padding-top: 0.2em;
     border-radius: 5px;
     background-color: #f0f0f0;
     cursor: pointer;
@@ -39,12 +57,11 @@ body {
     background-attachment: fixed;
     background-size: cover;
     color: white;
-    
   }
 
 #folderName {
 font-size: 1.2rem;
-}
+} 
 
 .driveTitle {
     font-size: 2rem;
@@ -93,3 +110,18 @@ li{
 .no-arrow::after {
     display: none!important
 }
+
+.cardTitle {
+    font-size: 1rem!important;
+}
+
+.card-body {
+    padding:0.5rem!important
+}
+
+.rename-input{
+    position: relative;
+    bottom : 0.25rem;
+    font-size: 0.8rem!important
+}
+

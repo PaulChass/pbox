@@ -1,8 +1,6 @@
 body {
   color:white;
-  max-width: clamp(320px, 90%, 1000px);
   margin: auto;
-  line-height: 1.5;
   
 }
 img {
@@ -16,15 +14,12 @@ img {
 }
 
 #siteLogo{
-  max-height: 120px;
+  max-height: 100px;
 opacity: 1;
 border-radius: 10px;
 margin:20px;
 }
 
-p {
-  max-width: 65ch;
-}
 
 h1, h2, h3, h4, h5, h6 {
   text-wrap: balance;

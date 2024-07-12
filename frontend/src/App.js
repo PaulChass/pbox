@@ -9,16 +9,8 @@ import Register from './pages/Register'; // Assuming you have this component
 import Login from './pages/Login'; // Assuming you have this component
 import Banner from './components/Banner'; // Assuming you have this component
 import ShareableLinkPage from './pages/ShareableLinkPage'; // Assuming you have this component
-import { isMobileSafari, isFirefox, isSamsungBrowser } from 'react-device-detect'; // This library helps with device detection
 
 const App = () => {
-  const [installPrompt, setInstallPrompt] = useState(null);
-  const [showFallback, setShowFallback] = useState(false);
-  const user = localStorage.getItem('email');
-
-  console.log(navigator.userAgent);
-  console.log(localStorage.getItem('email'));
-
   document.title = 'Drive';
   return (
     <div>

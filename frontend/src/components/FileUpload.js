@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { baseUrl } from '../api.js'; // Adjust the path according to your file structure
 import { Form, Button, ProgressBar } from 'react-bootstrap';
-
+import { BsXCircle } from 'react-icons/bs';
 
 const FileUpload = ({ folderId, setFiles, files, setIsLoading }) => {
   const [selectedFiles, setSelectedFiles] = useState(null);
+  const [showForm, setShowForm] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const token = localStorage.getItem('token');
   const handleFileChange = (e) => {
@@ -37,10 +38,11 @@ const FileUpload = ({ folderId, setFiles, files, setIsLoading }) => {
     }, false);
 
     xhr.addEventListener('readystatechange', function (e) {
-      if (xhr.readyState == 4 && xhr.status == 200) {
-        // Upload complete
+      if (xhr.readyState === 4 && xhr.status === 200) {
         console.log('Upload complete.');
-      } else if (xhr.readyState == 4 && xhr.status != 200) {
+        setIsLoading(false);
+        setUploadProgress(0);
+      } else if (xhr.readyState === 4 && xhr.status !== 200) {
         // Error handling
         console.log('Upload failed.');
       }
@@ -71,9 +73,9 @@ const FileUpload = ({ folderId, setFiles, files, setIsLoading }) => {
       console.error('Error uploading files:', xhr.statusText);
       alert('Error uploading files');
       setIsLoading(false);
+      setUploadProgress(0);
     };
 
-    xhr.setRequestHeader('Authorization', `Bearer ${token}`);
     xhr.setRequestHeader('Content-Type', 'multipart/form-data');
     xhr.withCredentials = true;
 
@@ -83,10 +85,16 @@ const FileUpload = ({ folderId, setFiles, files, setIsLoading }) => {
   return (
     <div>
       <div style={{ marginTop: '1rem' }}>
+        {
+          showForm ? <div>
         <Form onSubmit={handleUpload} className="file_form" style={{ marginTop: '1rem' }}>
           <Form.Control type="file" multiple onChange={handleFileChange} />
           <Button type="submit">Upload</Button>
         </Form>
+          <BsXCircle style={{margin:'0.5rem'}} onClick={()=>{setShowForm(false)}}/>
+        </div>                   :
+        <span style={{textDecoration: 'underline', marginBottom:'2rem'}} onClick={() => {setShowForm(prevState => !prevState)}}>Upload files</span>
+        }
       </div>
       {
         uploadProgress > 0 && uploadProgress < 100 &&

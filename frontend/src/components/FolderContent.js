@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import api, { baseUrl } from '../api.js'; // Adjust the path according to your file structure
-import {BsFolder2Open, BsThreeDotsVertical} from 'react-icons/bs';
+import {BsFolder2Open, BsThreeDotsVertical, BsArrowLeftSquare} from 'react-icons/bs';
 
 import CreateFolder from '../components/CreateFolder';
 import FileList from '../components/FilesList';
@@ -240,7 +240,7 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
 
 
     const renderFolders = () => {
-        if (folders && folders.length === 0) {
+        if (folders && folders.filter(folder => folder.parent_id === folderId).length === 0) {
             return <p>No folders found</p>;
         } else {
             return folders
@@ -250,7 +250,7 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
                 <div key={folder.id} className='flexCenter' >
                     <Card className="folder droppable-card"
                         onClick={() => handleClick(folder.id)}
-                        style={{ width: '12rem',height:'5rem'}}
+                        style={{ width: '12rem',height:'3rem'}}
                         draggable={isMovable ? true : false}
                         onDragStart={(e) => {
                             if (isMovable) {
@@ -263,7 +263,7 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
                     >
 
                         <Card.Body>
-                            <Card.Title>
+                            <Card.Title className='cardTitle'>
                                 {showRename && showRenameId === folder.id
                                     ? <RenameFolder folderId={folder.id} setFolders={setFolders} setUpdated={setUpdated} folderName={folder.name} setShowRename={setShowRename} />
                                     : 
@@ -325,6 +325,8 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
                     <div className="folders" style={{ marginTop: '1rem', marginBottom: '1rem' }}
                         onDragOver={(e) => e.preventDefault()}
                         onDrop={(e) => handleUploadFolder(e)}>
+                                                <h3>Folders</h3>
+
                         <h3 id='folderName'>{folderName}</h3>
 
                         {!isRoot &&
@@ -333,20 +335,24 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
                                 onDragOver={(e) => e.preventDefault()}
                                 onClick={handleBackClick} 
                                 onDrop={e => handleDrop(e, findParentFolderId(folders, folderId))}>
-                                ...
+                                <BsArrowLeftSquare />
                             </Button>}
                         {renderFolders(folders)}
 
                         <CreateFolder setFolders={setFolders} folderId={folderId} />
 
                         {(!isRoot || shared)
-                            && <FileList folderId={folderId} isNotRootFolder={!isRoot}
+                            && 
+                            <div>
+                                <h3>Files</h3>
+                            <FileList folderId={folderId} isNotRootFolder={!isRoot}
                                 setIsLoading={setIsLoading}
                                 updated={updated} setUpdated={setUpdated}
                                 showRenameFile={showRenameFile} setShowRenameFile={setShowRenameFile}
                                 isMovable={isMovable} setIsMovable={setIsMovable}
                                 setDownloadProgress={setDownloadProgress}
-                            />}
+                            />                            </div>
+}
 
                         {showCreateLink &&
                             <CreateShareableLink folderId={shareFolderId} folderName={shareFolderName} />}
