@@ -105,11 +105,28 @@ exports.uploadFiles = (req, res) => {
         // Ensure the folder structure for each file and get the folder_id
         const folderId = await ensureFolderStructure(file.folderPath || '', rootFolderId);
         
+        let fileName = file.originalname;
+        let filePath = path.join(__dirname, '..', 'uploads', folderId.toString(), fileName);
+
+        let it = 1;
+        while (await File.findOne({ where: { name: fileName, folder_id: folderId } })) {
+          fileNameParts = file.originalname.split('.');
+          fileName = `${fileNameParts[0]}(${it}).${fileNameParts[1]}`;
+          filePath = path.join(__dirname, '..', 'uploads', folderId.toString(), fileName);
+          it++;
+        } 
+        // Rename the file if a file with the same name already exists in the folder
+        fs.renameSync(file.path, filePath); // Use fs.renameSync to avoid
+
+
+
+
+
 
         // Create the file record with the correct folder_id
         await File.create({
-          name: file.originalname,
-          path: file.path,
+          name: fileName,
+          path: filePath,
           size: file.size,
           folder_id: folderId || null, // Use the folder_id obtained from ensureFolderStructure
         });
