@@ -109,14 +109,13 @@ exports.uploadFiles = (req, res) => {
         // Check if file exists in the database
         const existingFile = await File.findOne({ where: { name: file.originalname, folder_id: folderId } });
         if (existingFile) {
-          console.log(`File ${file.originalname} already exists in folder ${folderId}`);
           const nameSplit  = file.originalname.split('.');
           fileName = `${nameSplit[0]}(${Date.now()}).${nameSplit[1]}`;
         }
 
         // Create the file record with the correct folder_id
         await File.create({
-          name: file.originalname,
+          name: fileName,
           path: file.path,
           size: file.size,
           folder_id: folderId || null, // Use the folder_id obtained from ensureFolderStructure
