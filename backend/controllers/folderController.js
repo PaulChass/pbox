@@ -115,8 +115,9 @@ exports.uploadFiles = (req, res) => {
           console.log(`File ${file.originalname} already exists in folder ${folderId}`);
           const nameSplit  = file.originalname.split('.');
           fileName = `${nameSplit[0]}(${it})${nameSplit[1]}`;
+          i++;
         } else {fileNameAvailable = true;}
-        i++;}
+        }
 
         // Create the file record with the correct folder_id
         await File.create({
