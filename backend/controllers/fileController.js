@@ -42,7 +42,6 @@ exports.downloadFile = async (req, res) => {
 
 // Delete file by Id
 exports.deleteFile = async (req, res) => {
-
     try {
         const fileId = req.params.fileId;
         const file = await File.findOne({ where: { id: fileId } });
