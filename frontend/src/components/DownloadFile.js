@@ -1,7 +1,7 @@
 import React  from 'react';
 import api, { baseUrl } from '../api.js';
 
-const DownloadFile = ({ file, isLoading, setIsLoading, setDownloadProgress }) => {
+const DownloadFile = ({ file, setIsLoading, setDownloadProgress }) => {
     
     
     const handleDownload = async () => {
@@ -20,7 +20,6 @@ const DownloadFile = ({ file, isLoading, setIsLoading, setDownloadProgress }) =>
                 }
             });
             setDownloadProgress(0);
-
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
@@ -31,9 +30,10 @@ const DownloadFile = ({ file, isLoading, setIsLoading, setDownloadProgress }) =>
         } catch (error) {
             console.error('Error downloading file:', error);
         } 
+        finally {
             setIsLoading(false);
             setDownloadProgress(0);
-        
+        }
     };
 
     return (<div onClick={handleDownload}>

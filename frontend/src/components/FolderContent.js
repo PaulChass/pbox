@@ -358,7 +358,7 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
                             <CreateShareableLink folderId={shareFolderId} folderName={shareFolderName} />}
 
                         {
-                            downloadProgress > 0 && downloadProgress < 100 &&
+                            downloadProgress > 0 && isLoading &&
                             <ProgressBar now={downloadProgress} label={`${downloadProgress}%`} />
                         }
                         {isLoading &&

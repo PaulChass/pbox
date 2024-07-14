@@ -6,7 +6,7 @@ const archiver = require('archiver');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
-const  Busboy  = require('busboy');
+const Busboy = require('busboy');
 
 
 // Fetch all folders for a specific user
@@ -32,10 +32,34 @@ exports.getFolders = async (req, res) => {
 // Create a new folder post body should contain 'name' and 'parent_id' fields
 exports.createFolder = async (req, res) => {
   const { name, parent_id, email } = req.body;
+  let uniqueFolderName = name;
   const user = await User.findOne({ where: { email } });
+
+
+  console.log('name:', name); 
+  // Fetch all folders under the parent_id for the user to reduce database queries
+  const userFolders = await Folder.findAll({
+    where: {
+      parent_id,
+      user_id: user.dataValues.id
+    }
+  });
+
+  // Extract folder names for easy comparison
+  const folderNames = userFolders.map(folder => folder.name);
+
+  let it = 1;
+
+  // Check if the folder name exists and append a number until a unique name is found
+  while (folderNames.includes(uniqueFolderName)) {
+    uniqueFolderName = `${name}(${it})`;
+    it++;
+  }
+  console.log('Unique Folder Name:', uniqueFolderName);
+  // Create the folder with the unique name
   try {
     const newFolder = await Folder.create({
-      name,
+      name : uniqueFolderName,
       parent_id,
       user_id: user.dataValues.id
     });
@@ -73,9 +97,9 @@ const upload = multer({ storage });
 
 async function ensureFolderStructure(folderPath, rootFolderId) {
   let currentParentId = rootFolderId; // Start with the root folder ID
-  const pathParts = folderPath.split('/'); 
+  const pathParts = folderPath.split('/');
   for (const part of pathParts) {
-    if (!part) continue; 
+    if (!part) continue;
     let folder = await Folder.findOne({ where: { name: part, parent_id: currentParentId } });
     if (!folder) {
       folder = await Folder.create({ name: part, parent_id: currentParentId });
@@ -89,7 +113,7 @@ async function ensureFolderStructure(folderPath, rootFolderId) {
 // Upload files to a specific folder
 exports.uploadFiles = (req, res) => {
   const rootFolderId = req.params.folderId; // This is the ID of the folder where the upload was initiated
-  
+
   upload.array('files')(req, res, async (err) => {
     if (err instanceof multer.MulterError) {
       console.error('Multer error:', err);
@@ -98,13 +122,13 @@ exports.uploadFiles = (req, res) => {
       console.error('Unknown error during upload:', err);
       return res.status(500).json({ error: 'Failed to upload files' });
     }
-    console.log('Req Files',req.files);
+    console.log('Req Files', req.files);
 
     try {
       for (const file of req.files) {
         // Ensure the folder structure for each file and get the folder_id
         const folderId = await ensureFolderStructure(file.folderPath || '', rootFolderId);
-        
+
         let fileName = file.originalname;
         let filePath = path.join(__dirname, '..', 'uploads', folderId.toString(), fileName);
 
@@ -114,13 +138,9 @@ exports.uploadFiles = (req, res) => {
           fileName = `${fileNameParts[0]}(${it}).${fileNameParts[1]}`;
           filePath = path.join(__dirname, '..', 'uploads', folderId.toString(), fileName);
           it++;
-        } 
+        }
         // Rename the file if a file with the same name already exists in the folder
         fs.renameSync(file.path, filePath); // Use fs.renameSync to avoid
-
-
-
-
 
 
         // Create the file record with the correct folder_id
@@ -166,7 +186,7 @@ const calculateFolderSize = async (folderId) => {
   for (const subfolder of subfolders) {
     totalSize += await calculateFolderSize(subfolder.id);
   }
-  
+
   return totalSize;
 };
 
@@ -197,13 +217,13 @@ const addFolderToArchive = async (archive, folder, baseFolderPath, baseArchivePa
     await addFolderToArchive(archive, subfolder, subfolderPath, subfolderArchivePath);
   }
 
-  
+
 };
 
 // Sanitize folder name by removing or replacing invalid characters
 function sanitizeFolderName(folderName) {
   const invalidChars = {
-    '?': '', 
+    '?': '',
     '<': '',
     '>': '',
     ':': '',
@@ -217,7 +237,7 @@ function sanitizeFolderName(folderName) {
   for (const [invalidChar, replacement] of Object.entries(invalidChars)) {
     sanitizedFolderName = sanitizedFolderName.split(invalidChar).join(replacement);
   }
-  
+
   return sanitizedFolderName;
 }
 
@@ -228,8 +248,8 @@ exports.downloadFolder = async (req, res) => {
   res.setHeader('Content-Length', totalSize);
   try {
     const folder = await Folder.findByPk(folderId);
-    let bytesSent = 0;  
-   
+    let bytesSent = 0;
+
     console.log(`Folder size: ${totalSize} bytes`);
     if (!folder) {
       return res.status(404).json({ error: 'Folder not found' });
@@ -249,7 +269,7 @@ exports.downloadFolder = async (req, res) => {
     archive.on('data', chunk => {
       bytesSent += chunk.length;
       console.log(`Sent ${bytesSent} of ${totalSize} bytes (${((bytesSent / totalSize) * 100).toFixed(2)}%)`);
-      
+
     });
     archive.pipe(res);
 
@@ -258,7 +278,7 @@ exports.downloadFolder = async (req, res) => {
     await addFolderToArchive(archive, folder, folderPath, sanitizedFolderName);
 
     await archive.finalize();
-    
+
   } catch (error) {
     console.error('Failed to download folder:', error);
     res.status(500).json({ error: 'Failed to download folder' });

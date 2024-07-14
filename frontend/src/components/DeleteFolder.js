@@ -5,6 +5,10 @@ const DeleteFolder = ({ folderId, setFolders }) => {
     const [isLoading, setIsLoading] = useState(false);
 
     const handleDelete = async () => {
+        if (confirm('Are you sure you want to delete this folder?')===false) {
+            return;
+        }
+        
         setIsLoading(true);
         try {
             const config = {
