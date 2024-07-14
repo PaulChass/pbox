@@ -107,11 +107,16 @@ exports.uploadFiles = (req, res) => {
         
         let fileName = file.originalname;
         // Check if file exists in the database
-        const existingFile = await File.findOne({ where: { name: file.originalname, folder_id: folderId } });
+        let fileNameAvailable = false;
+        let i = 1;
+        while(fileNameAvailable === false){
+        const existingFile = await File.findOne({ where: { name: fileName, folder_id: folderId } });
         if (existingFile) {
+          console.log(`File ${file.originalname} already exists in folder ${folderId}`);
           const nameSplit  = file.originalname.split('.');
-          fileName = `${nameSplit[0]}(${Date.now()}).${nameSplit[1]}`;
-        }
+          fileName = `${nameSplit[0]}(${it})${nameSplit[1]}`;
+        } else {fileNameAvailable = true;}
+        i++;}
 
         // Create the file record with the correct folder_id
         await File.create({
