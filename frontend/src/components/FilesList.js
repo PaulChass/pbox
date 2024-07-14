@@ -20,6 +20,7 @@ const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdate
 }) => {
     const [files, setFiles] = useState([]);
     const [isFetching, setIsFetching] = useState(false);
+    const [refresh, setRefresh] = useState(false);
     const [error, setError] = useState(null);
     const token = localStorage.getItem('token');
     const location = useLocation();
@@ -31,7 +32,7 @@ const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdate
     useEffect(() => {
         setIsFetching(true);
         fetchFiles();
-    }, [folderId, location.pathname, updated]);
+    }, [folderId, location.pathname, updated, refresh]);
 
 
     const handleClick = (id, type) => {
@@ -64,8 +65,8 @@ const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdate
         } finally {
             setIsFetching(false);
             setUpdated(false);
+            setRefresh(false);
         }
-
     };
 
     const truncateFileName = (name) => {
@@ -186,7 +187,7 @@ const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdate
                     ))}
                     {files.length === 0 && <p>No files found</p>}
                 </span>
-                {isNotRootFolder && <FileUpload folderId={folderId} setIsLoading={setIsLoading} setFiles={setFiles} files={files} />}
+                {isNotRootFolder && <FileUpload folderId={folderId} setIsLoading={setIsLoading} files={files}  setRefresh={setRefresh} />}
             </div>
         );
     }

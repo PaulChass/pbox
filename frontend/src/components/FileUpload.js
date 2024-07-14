@@ -3,11 +3,10 @@ import { baseUrl } from '../api.js'; // Adjust the path according to your file s
 import { Form, Button, ProgressBar } from 'react-bootstrap';
 import { BsXCircle } from 'react-icons/bs';
 
-const FileUpload = ({ folderId, setFiles, files, setIsLoading }) => {
+const FileUpload = ({ folderId, setIsLoading, setRefresh }) => {
   const [selectedFiles, setSelectedFiles] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const token = localStorage.getItem('token');
   const handleFileChange = (e) => {
     setSelectedFiles(e.target.files);
   };
@@ -59,7 +58,7 @@ const FileUpload = ({ folderId, setFiles, files, setIsLoading }) => {
     xhr.onload = function () {
       if (xhr.status === 200) {
         alert('Files uploaded successfully');
-        setFiles([...files, ...selectedFiles]);
+        setRefresh(true);
       } else {
         console.error('Error uploading files:', xhr.statusText);
         alert('Error uploading files');
