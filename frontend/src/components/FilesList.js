@@ -10,8 +10,7 @@ import '../styles/FileList.css';
 import { Dropdown } from 'react-bootstrap';
 import * as BsIcons from "react-icons/bs";
 import { BsThreeDotsVertical } from 'react-icons/bs';
-
-
+import { useNavigate } from 'react-router-dom';
 
 const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdated,
     showRenameFile, setShowRenameFile, isMovable, setIsMovable,
@@ -136,6 +135,30 @@ const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdate
         );
     }
 
+    const handleFileClick = async (fileId) => {
+        try {
+            let getUrl = `${baseUrl}/files/${fileId}`;
+    
+            const response = await api.get(getUrl, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}`
+                },
+                responseType: 'blob', // Ensure Axios treats the response as a Blob
+                withCredentials: true
+            });
+            if (response.status !== 200) {
+                throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+            }
+            // Assuming Axios or similar, the actual Blob is in response.data
+            const fileBlob = response.data; // Directly use the Blob from the response
+            const fileBlobUrl = window.URL.createObjectURL(fileBlob);
+            window.open(fileBlobUrl, '_blank');
+        } catch (error) {
+            console.error('Error fetching file:', error);
+        }
+    };
+
     if (isFetching) {
         return  ( <Spinner animation="border" role="status">
         <span className="visually-hidden">
@@ -148,6 +171,7 @@ const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdate
                     {files.sort((a, b) => a.name.localeCompare(b.name)).map(file => (
                         <li key={file.id} style={{ display: 'flex', justifyContent: 'center' }}
                             draggable={isMovable ? true : false}
+                            onClick={() => handleFileClick(file.id)}
                             onDragStart={(e) => {
 
                                 const dragData = JSON.stringify({ id: file.id, type: 'files' });
@@ -160,7 +184,7 @@ const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdate
                             {(showRenameFile && showRenameFileId === file.id) ?
                                 <RenameFile fileId={file.id} setFiles={setFiles} setShowRenameFile={setShowRenameFile} />
                                 :
-                                displayFile(file.name)
+                                <button onClick={() => handleFileClick(file.id)} style={{ textDecoration: 'underline', border: 'none', background: 'none', cursor: 'pointer' , color:'white'}}>{displayFile(file.name)}</button>
                             }
                             <Dropdown >
                                 <Dropdown.Toggle variant="dark" id="dropdown-files" custom="true" className='no-arrow'>

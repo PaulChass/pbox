@@ -117,3 +117,18 @@ exports.moveFile = async (req, res) => {
         res.status(500).send('Error moving file');
     }
 }
+
+// Find file by Id
+exports.getFile = async (req, res) => {
+    const { fileId } = req.params;
+    try {
+        const file = await File.findOne({ where: { id: fileId } });
+        if (!file) {
+            return res.status(404).send('File not found');
+        }
+        res.download(file.path, file.name);
+    } catch (error) {
+        console.error('Error getting file:', error);
+        res.status(500).send('Server error');
+    }
+};

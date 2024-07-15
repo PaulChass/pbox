@@ -7,7 +7,7 @@
 }
 
 #login Form {
-    background-color: rgb(1,45,59);
+    background-color: rgb(1,45,59,0.9);
     padding: 2rem;
     width: 80%;
     justify-content: center;
@@ -20,10 +20,10 @@
 .center{
     display: flex;
     justify-content: center;
+    text-decoration: none;
 }
 
 .btn{
     text-align: center;
     margin: auto;
-
 }

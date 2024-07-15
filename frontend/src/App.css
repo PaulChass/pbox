@@ -10,7 +10,7 @@ img {
 .flex-container{
   display: flex;
   justify-content: space-between;
-  background-color: rgb(1,45,59);
+  background-color: rgba(1,45,59,0.9);
 }
 
 #siteLogo{
@@ -27,4 +27,8 @@ h1, h2, h3, h4, h5, h6 {
 
 td, th {
   padding: 0.5em; 
+}
+
+body{
+  background-image: url('https://cdn.static-media.blent.ai/photos/blog/photo-1504253163759-c23fccaebb55.jpg');
 }

@@ -4,7 +4,7 @@
     overflow-y: auto;
     overflow-x: hidden;
     padding: 2em;
-    background-color: rgb(1,45,59);
+    background-color: rgba(1,45,59,0.9);
     margin: auto!important;
     border-radius: 15px;
     padding-bottom: 50px;
@@ -20,7 +20,7 @@
     overflow-y: auto;
     overflow-x: hidden;
     padding: 2em;
-    background-color: rgb(1,45,59);
+    background-color: rgba(1,45,59,0.9);
     margin: auto!important;
     border-radius: 15px;
     padding-bottom: 50px;
@@ -123,5 +123,10 @@ li{
     position: relative;
     bottom : 0.25rem;
     font-size: 0.8rem!important
+}
+
+.center {
+    text-align: center;
+    color:black;
 }
 
