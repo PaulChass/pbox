@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom/client';
 import api, { baseUrl } from '../api.js'; // Adjust the path according to your file structure
 import FileUpload from './FileUpload';
 import DownloadFile from './DownloadFile';
@@ -9,8 +10,7 @@ import { useLocation } from 'react-router-dom';
 import '../styles/FileList.css';
 import { Dropdown } from 'react-bootstrap';
 import * as BsIcons from "react-icons/bs";
-import { BsThreeDotsVertical } from 'react-icons/bs';
-import { useNavigate } from 'react-router-dom';
+import { BsThreeDotsVertical, BsX } from 'react-icons/bs';
 
 const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdated,
     showRenameFile, setShowRenameFile, isMovable, setIsMovable,
@@ -19,6 +19,7 @@ const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdate
 }) => {
     const [files, setFiles] = useState([]);
     const [isFetching, setIsFetching] = useState(false);
+    const [isOpening, setIsOpening] = useState(false);
     const [refresh, setRefresh] = useState(false);
     const [error, setError] = useState(null);
     const token = localStorage.getItem('token');
@@ -138,7 +139,7 @@ const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdate
     const handleFileClick = async (fileId) => {
         try {
             let getUrl = `${baseUrl}/files/${fileId}`;
-    
+            setIsOpening(true);
             const response = await api.get(getUrl, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -147,31 +148,103 @@ const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdate
                 responseType: 'blob', // Ensure Axios treats the response as a Blob
                 withCredentials: true
             });
-            if (response.status !== 200) {
-                throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
-            }
+
             // Assuming Axios or similar, the actual Blob is in response.data
             const fileBlob = response.data; // Directly use the Blob from the response
             const fileBlobUrl = window.URL.createObjectURL(fileBlob);
-            window.open(fileBlobUrl, '_blank');
+
+            // Create an iframe and set its source to the Blob URL
+            const iframe = document.createElement('iframe');
+            iframe.src = fileBlobUrl;
+            iframe.style.width = '100%';
+            iframe.style.minHeight = '300px'; // Adjust the height as needed
+            iframe.style.border = 'none';
+
+
+            // Create a container for the iframe and the close button
+            const iframeContainer = document.createElement('div');
+            iframeContainer.className = 'iframeContainer'; // So the close button can be absolutely positioned within
+
+            // Append the iframe to the container
+            iframeContainer.appendChild(iframe);
+            iframeContainer.style.display = 'none'; // Hide the container initially
+
+            // Create the close button
+            const closeButton = document.createElement('button');
+            closeButton.className = 'btn btn-secondary'
+            closeButton.style.position = 'absolute';
+            closeButton.style.top = '10px'; // Adjust as needed
+            closeButton.style.right = '10px'; // Adjust as needed
+            closeButton.style.zIndex = '10'; // Ensure it's above the iframe
+            closeButton.style.fontSize = '1.2em'; // Adjust as needed
+            // Create the X icon element using React.createElement since we are manipulating DOM directly
+            const icon = React.createElement(BsX, {
+                style: { color: 'currentColor', width: '1em', height: '1em' } // Adjust icon styling as needed
+            });
+
+            // Since we cannot directly append a React component to a DOM element,
+            // we need to render the icon component to a temporary div and then move the content.
+            const tempDiv = document.createElement('div');
+            const root = ReactDOM.createRoot(tempDiv);
+            root.render(icon, () => {
+                while (tempDiv.firstChild) {
+                    closeButton.appendChild(tempDiv.firstChild);
+                }
+            });
+
+            // Add click event listener to remove the iframe and the container
+            closeButton.addEventListener('click', () => {
+                iframeContainer.remove();
+            });
+
+            // Append the close button to the container
+            iframeContainer.appendChild(closeButton);
+
+            // Assuming iframe is your iframe element
+            iframe.onload = function () {
+                const content = iframe.contentWindow || iframe.contentDocument;
+                if(content) {iframeContainer.style.display = 'block';};
+                try {
+                    var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    var images = iframeDoc.querySelectorAll('img'); // Adjust the selector as needed
+                    // Add a classname to each image
+                    images.forEach(function (img) {
+                        img.style.display = 'block';
+                        img.style.webkitUserSelect = 'none';
+                        img.style.maxWidth = '100%';
+                        img.style.maxHeight = '100%';
+                        img.style.objectFit = 'contain';
+                        img.style.margin = 'auto';
+                    });
+                } catch (error) {
+                    console.error('Error accessing iframe content:', error);
+                }
+            };
+
+            // Append the container to the document, replacing iframe append
+            const container = document.querySelector('.frame'); // Ensure you have a container with the class 'section'
+            container.innerHTML = ''; // Clear the container's content
+            container.appendChild(iframeContainer);
         } catch (error) {
             console.error('Error fetching file:', error);
+            alert('Error fetching file, refresh the page and try again.');
         }
+        setIsOpening(false);
     };
 
     if (isFetching) {
-        return  ( <Spinner animation="border" role="status">
-        <span className="visually-hidden">
-            Loading...</span>
-    </Spinner>);
+        return (<Spinner animation="border" role="status">
+            <span className="visually-hidden">
+                Loading...</span>
+        </Spinner>);
     } else {
         return (
             <div className='section'>
+                <div className='frame'></div>
                 <span>
                     {files.sort((a, b) => a.name.localeCompare(b.name)).map(file => (
                         <li key={file.id} style={{ display: 'flex', justifyContent: 'center' }}
                             draggable={isMovable ? true : false}
-                            onClick={() => handleFileClick(file.id)}
                             onDragStart={(e) => {
 
                                 const dragData = JSON.stringify({ id: file.id, type: 'files' });
@@ -184,7 +257,7 @@ const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdate
                             {(showRenameFile && showRenameFileId === file.id) ?
                                 <RenameFile fileId={file.id} setFiles={setFiles} setShowRenameFile={setShowRenameFile} />
                                 :
-                                <button onClick={() => handleFileClick(file.id)} style={{ textDecoration: 'underline', border: 'none', background: 'none', cursor: 'pointer' , color:'white'}}>{displayFile(file.name)}</button>
+                                <button onClick={() => handleFileClick(file.id)} style={{ textDecoration: 'underline', border: 'none', background: 'none', cursor: 'pointer', color: 'white' }}>{displayFile(file.name)}</button>
                             }
                             <Dropdown >
                                 <Dropdown.Toggle variant="dark" id="dropdown-files" custom="true" className='no-arrow'>
@@ -211,7 +284,8 @@ const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdate
                     ))}
                     {files.length === 0 && <p>No files found</p>}
                 </span>
-                {isNotRootFolder && <FileUpload folderId={folderId} setIsLoading={setIsLoading} files={files}  setRefresh={setRefresh} />}
+                {isNotRootFolder && <FileUpload folderId={folderId} setIsLoading={setIsLoading} files={files} setRefresh={setRefresh} />}
+                {isOpening && <Spinner animation="border" role="status"> <span className="visually-hidden">Loading...</span></Spinner>}
             </div>
         );
     }

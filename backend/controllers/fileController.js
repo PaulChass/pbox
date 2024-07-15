@@ -1,7 +1,7 @@
 const File = require('../models/File');
 const path = require('path');
 const fs = require('fs')
-
+const { ValidationError, DatabaseError } = require('sequelize');
 
 // Fetch files by Id
 exports.downloadFile = async (req, res) => {
@@ -128,7 +128,15 @@ exports.getFile = async (req, res) => {
         }
         res.download(file.path, file.name);
     } catch (error) {
-        console.error('Error getting file:', error);
-        res.status(500).send('Server error');
+        if (error instanceof ValidationError) {
+            console.error('Validation error getting file:', error);
+            return res.status(400).send('Validation error');
+        } else if (error instanceof DatabaseError) {
+            console.error('Database error getting file:', error);
+            return res.status(500).send('Database error');
+        } else {
+            console.error('Error getting file:', error);
+            res.status(500).send('Server error');
+        }
     }
 };
