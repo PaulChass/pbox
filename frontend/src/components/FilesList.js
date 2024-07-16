@@ -12,7 +12,7 @@ import { Dropdown } from 'react-bootstrap';
 import * as BsIcons from "react-icons/bs";
 import { BsThreeDotsVertical, BsX } from 'react-icons/bs';
 
-const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdated,
+const FilesList = ({ folderId, showUpload, setIsLoading, updated, setUpdated,
     showRenameFile, setShowRenameFile, isMovable, setIsMovable,
     setDownloadProgress
 
@@ -25,6 +25,7 @@ const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdate
     const token = localStorage.getItem('token');
     const location = useLocation();
     const spinnerRef = useRef(null); 
+    const frameRef = useRef(null);
 
 
 
@@ -153,7 +154,11 @@ const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdate
                     'Authorization': `Bearer ${token}`
                 },
                 responseType: 'blob', // Ensure Axios treats the response as a Blob
-                withCredentials: true
+                withCredentials: true,
+                onDownloadProgress: (progressEvent) => {
+                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    setDownloadProgress(percentCompleted);
+                }
             });
 
             // Assuming Axios or similar, the actual Blob is in response.data
@@ -227,17 +232,18 @@ const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdate
             alert('Error fetching file, refresh the page and try again.');
         }
         setIsOpening(false);
+        frameRef.current?.scrollIntoView({ behavior: 'smooth' }); // Scroll to the spinner
     };
 
     if (isFetching) {
-        return (<Spinner animation="border" role="status" ref=''>
+        return (<Spinner animation="border" role="status">
             <span className="visually-hidden">
                 Loading...</span>
         </Spinner>);
     } else {
         return (
             <div className='section'>
-                <div className='frame'></div>
+                <div className='frame' ref={frameRef}></div>
                 <span>
                     {files.sort((a, b) => a.name.localeCompare(b.name)).map(file => (
                         <li key={file.id} style={{ display: 'flex', justifyContent: 'center' }}
@@ -281,8 +287,14 @@ const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdate
                     ))}
                     {files.length === 0 && <p>No files found</p>}
                 </span>
-                {isNotRootFolder && <FileUpload folderId={folderId} setIsLoading={setIsLoading} files={files} setRefresh={setRefresh} />}
-                {isOpening && <Spinner animation="border" role="status" ref="spinnerRef"> <span className="">Loading the file on browser ...</span></Spinner>}
+                <span ref={spinnerRef}>
+                {showUpload && <FileUpload folderId={folderId} setIsLoading={setIsLoading} files={files} setRefresh={setRefresh} />}
+                {isOpening && <span>Loading please wait + 
+                                <Spinner animation="border" role="status" > 
+                                    <span className="visually-hidden">Loading</span>
+                                </Spinner>
+                              </span>}
+                </span >
             </div>
         );
     }

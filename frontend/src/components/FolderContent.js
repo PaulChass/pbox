@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import api, { baseUrl } from '../api.js'; // Adjust the path according to your file structure
-import {BsFolder2Open, BsThreeDotsVertical, BsArrowLeftSquare} from 'react-icons/bs';
+import { BsFolder2Open, BsThreeDotsVertical, BsArrowLeftSquare } from 'react-icons/bs';
 
 import CreateFolder from '../components/CreateFolder';
 import FileList from '../components/FilesList';
@@ -251,56 +251,56 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
             return <p>No folders found</p>;
         } else {
             return folders
-            .filter(folder => folder.parent_id === folderId)
-            .sort((a,b) => a.name.localeCompare(b.name))
-            .map(folder => (
-                <div key={folder.id} className='flexCenter' >
-                    <Card className="folder droppable-card"
-                        onClick={() => handleClick(folder.id)}
-                        style={{ width: '12rem',height:'3rem'}}
-                        draggable={isMovable ? true : false}
-                        onDragStart={(e) => {
-                            if (isMovable) {
-                                const dragData = JSON.stringify({ id: folder.id, type: 'folders' });
-                                e.dataTransfer.setData('application/json', dragData);
-                            }
-                        }}
-                        onDragOver={(e) => { e.preventDefault() }}
-                        onDrop={(e) => { handleDrop(e, folder.id) }}
-                    >
+                .filter(folder => folder.parent_id === folderId)
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map(folder => (
+                    <div key={folder.id} className='flexCenter' >
+                        <Card className="folder droppable-card"
+                            onClick={() => handleClick(folder.id)}
+                            style={{ width: '12rem', height: '3rem' }}
+                            draggable={isMovable ? true : false}
+                            onDragStart={(e) => {
+                                if (isMovable) {
+                                    const dragData = JSON.stringify({ id: folder.id, type: 'folders' });
+                                    e.dataTransfer.setData('application/json', dragData);
+                                }
+                            }}
+                            onDragOver={(e) => { e.preventDefault() }}
+                            onDrop={(e) => { handleDrop(e, folder.id) }}
+                        >
 
-                        <Card.Body>
-                            <Card.Title className='cardTitle'>
-                                {showRename && showRenameId === folder.id
-                                    ? <RenameFolder folderId={folder.id} setFolders={setFolders} setUpdated={setUpdated} folderName={folder.name} setShowRename={setShowRename} />
-                                    : 
-                                    <span><BsFolder2Open></BsFolder2Open> {folder.name}</span>}
-                            </Card.Title>
-                        </Card.Body>
-                    </Card>
-                    <Dropdown>
-                    <Dropdown.Toggle variant="dark" id="dropdown-basic" custom="true" className='no-arrow'>
-                    <BsThreeDotsVertical />
-                    </Dropdown.Toggle>                        <Dropdown.Menu>
-                            <Dropdown.Item>
-                                <DownloadFolder folderId={folder.id} isLoading={isLoading} setIsLoading={setIsLoading} setShowRename={setShowRename} folderName={folder.name} setDownloadProgress={setDownloadProgress} />
-                            </Dropdown.Item>
-                            <Dropdown.Item>
-                                <DeleteFolder folderId={folder.id} setFolders={setFolders} />
-                            </Dropdown.Item>
-                            <Dropdown.Item onClick={() => handleClick(folder.id, 'createLink')}>
-                                Share
-                            </Dropdown.Item>
-                            <Dropdown.Item onClick={() => handleClick(folder.id, 'rename')}>
-                                Rename
-                            </Dropdown.Item>
-                            <Dropdown.Item onClick={() => handleClick(folder.id, 'move')}>
-                                Move
-                            </Dropdown.Item>
-                        </Dropdown.Menu>
-                    </Dropdown>
-                </div >
-            ));
+                            <Card.Body>
+                                <Card.Title className='cardTitle'>
+                                    {showRename && showRenameId === folder.id
+                                        ? <RenameFolder folderId={folder.id} setFolders={setFolders} setUpdated={setUpdated} folderName={folder.name} setShowRename={setShowRename} />
+                                        :
+                                        <span><BsFolder2Open></BsFolder2Open> {folder.name}</span>}
+                                </Card.Title>
+                            </Card.Body>
+                        </Card>
+                        <Dropdown>
+                            <Dropdown.Toggle variant="dark" id="dropdown-basic" custom="true" className='no-arrow'>
+                                <BsThreeDotsVertical />
+                            </Dropdown.Toggle>                        <Dropdown.Menu>
+                                <Dropdown.Item>
+                                    <DownloadFolder folderId={folder.id} isLoading={isLoading} setIsLoading={setIsLoading} setShowRename={setShowRename} folderName={folder.name} setDownloadProgress={setDownloadProgress} />
+                                </Dropdown.Item>
+                                <Dropdown.Item>
+                                    <DeleteFolder folderId={folder.id} setFolders={setFolders} />
+                                </Dropdown.Item>
+                                <Dropdown.Item onClick={() => handleClick(folder.id, 'createLink')}>
+                                    Share
+                                </Dropdown.Item>
+                                <Dropdown.Item onClick={() => handleClick(folder.id, 'rename')}>
+                                    Rename
+                                </Dropdown.Item>
+                                <Dropdown.Item onClick={() => handleClick(folder.id, 'move')}>
+                                    Move
+                                </Dropdown.Item>
+                            </Dropdown.Menu>
+                        </Dropdown>
+                    </div >
+                ));
         }
     };
 
@@ -312,12 +312,12 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
         return (
             <div>
                 <h2 className='driveTitle'>My drive</h2>
-                <p style={{color:'black'}}>{shared ? <span >This is a private folder  </span> : <span>You need to Sign In to access your drive</span>}
-                   <a href='/login' style={{ marginLeft: '10px', marginRight: '10px' }}>
-                   <Button> Sign in</Button></a>
-                   <a href='/register'> 
-                   <Button>Register</Button></a>
-                    </p>
+                <p style={{ color: 'black' }}>{shared ? <span >This is a private folder  </span> : <span>You need to Sign In to access your drive</span>}
+                    <a href='/login' style={{ marginLeft: '10px', marginRight: '10px' }}>
+                        <Button> Sign in</Button></a>
+                    <a href='/register'>
+                        <Button>Register</Button></a>
+                </p>
             </div>
         );
 
@@ -332,15 +332,15 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
                     <div className="folders" style={{ marginTop: '1rem', marginBottom: '1rem' }}
                         onDragOver={(e) => e.preventDefault()}
                         onDrop={(e) => handleUploadFolder(e)}>
-                                                <h3>Folders</h3>
+                        <h3>Folders</h3>
 
                         <h3 id='folderName'>{folderName}</h3>
 
                         {!isRoot &&
-                            <Button variant='secondary' 
+                            <Button variant='secondary'
                                 style={{ width: '100%', marginTop: '3rem', marginBottom: '2rem' }}
                                 onDragOver={(e) => e.preventDefault()}
-                                onClick={handleBackClick} 
+                                onClick={handleBackClick}
                                 onDrop={e => handleDrop(e, findParentFolderId(folders, folderId))}>
                                 <BsArrowLeftSquare />
                             </Button>}
@@ -349,17 +349,18 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
                         <CreateFolder setFolders={setFolders} folderId={folderId} />
 
                         {(!isRoot || shared)
-                            && 
+                            &&
                             <div>
                                 <h3>Files</h3>
-                            <FileList folderId={folderId} isNotRootFolder={!isRoot}
-                                setIsLoading={setIsLoading}
-                                updated={updated} setUpdated={setUpdated}
-                                showRenameFile={showRenameFile} setShowRenameFile={setShowRenameFile}
-                                isMovable={isMovable} setIsMovable={setIsMovable}
-                                setDownloadProgress={setDownloadProgress}
-                            />                            </div>
-}
+                                <FileList folderId={folderId} showUpload={!isRoot || shared}
+                                    setIsLoading={setIsLoading}
+                                    setDownloadProgress={setDownloadProgress}
+                                    updated={updated} setUpdated={setUpdated}
+                                    showRenameFile={showRenameFile} setShowRenameFile={setShowRenameFile}
+                                    isMovable={isMovable} setIsMovable={setIsMovable}
+                                />
+                            </div>
+                        }
 
                         {showCreateLink &&
                             <CreateShareableLink folderId={shareFolderId} folderName={shareFolderName} />}
@@ -368,12 +369,14 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
                             downloadProgress > 0 && isLoading &&
                             <ProgressBar now={downloadProgress} label={`${downloadProgress}%`} />
                         }
-                        {isLoading &&
-                            <span>Loading please wait...
-                                <Spinner animation="border" role="status" ref={spinnerRef}>
-                                    <span className="visually-hidden">
-                                        Loading...</span>
-                                </Spinner></span>}
+                        <span ref={spinnerRef}>
+                            {isLoading &&
+                                <span>Loading please wait...
+                                    <Spinner animation="border" role="status" >
+                                        <span className="visually-hidden">
+                                            Loading...</span>
+                                    </Spinner></span>}
+                        </span>
                     </div>
                 </Row>
             </Container>

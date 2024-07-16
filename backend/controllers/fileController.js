@@ -118,7 +118,7 @@ exports.moveFile = async (req, res) => {
     }
 }
 
-// Find file by Id
+// Find file by Id and send download progress
 exports.getFile = async (req, res) => {
     const { fileId } = req.params;
     try {
@@ -126,16 +126,37 @@ exports.getFile = async (req, res) => {
         if (!file) {
             return res.status(404).send('File not found');
         }
-        res.download(file.path, file.name);
+        const filePath = path.join(__dirname, '..', 'uploads', file.folder_id.toString(), file.name);
+
+        const stats = await fs.promises.stat(filePath);
+        const fileSize = stats.size;
+        let bytesSent = 0;
+
+        res.writeHead(200, {
+            'Content-Length': fileSize,
+            'Content-Type': 'application/octet-stream',
+            'Content-Disposition': `attachment; filename=${file.name}`,
+        });
+
+        const readStream = fs.createReadStream(filePath);
+        readStream.on('data', (chunk) => {
+            bytesSent += chunk.length;
+            console.log(`Sent ${bytesSent} of ${fileSize} bytes (${((bytesSent / fileSize) * 100).toFixed(2)}%)`);
+            // Optionally, you could use a mechanism like WebSockets to send this progress to the frontend
+        });
+        readStream.pipe(res);
+
+        readStream.on('end', () => {
+            res.end();
+            console.log('Download completed.');
+        });
     } catch (error) {
+        console.error('Error getting file:', error);
         if (error instanceof ValidationError) {
-            console.error('Validation error getting file:', error);
             return res.status(400).send('Validation error');
         } else if (error instanceof DatabaseError) {
-            console.error('Database error getting file:', error);
             return res.status(500).send('Database error');
         } else {
-            console.error('Error getting file:', error);
             res.status(500).send('Server error');
         }
     }
