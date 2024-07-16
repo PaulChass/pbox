@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom/client';
 import api, { baseUrl } from '../api.js'; // Adjust the path according to your file structure
 import FileUpload from './FileUpload';
@@ -24,6 +24,8 @@ const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdate
     const [error, setError] = useState(null);
     const token = localStorage.getItem('token');
     const location = useLocation();
+    const spinnerRef = useRef(null); 
+
 
 
     const [showRenameFileId, setShowRenameFileId] = useState(null);
@@ -34,6 +36,11 @@ const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdate
         fetchFiles();
     }, [folderId, location.pathname, updated, refresh]);
 
+    useEffect(() => {
+        if (isOpening) {
+            spinnerRef.current?.scrollIntoView({ behavior: 'smooth' }); // Scroll to the spinner
+        }
+    }, [isOpening]);
 
     const handleClick = (id, type) => {
         if (type === 'move') {
@@ -178,24 +185,14 @@ const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdate
             closeButton.style.zIndex = '10'; // Ensure it's above the iframe
             closeButton.style.fontSize = '1.2em'; // Adjust as needed
             // Create the X icon element using React.createElement since we are manipulating DOM directly
-            const icon = React.createElement(BsX, {
-                style: { color: 'currentColor', width: '1em', height: '1em' } // Adjust icon styling as needed
-            });
-
-            // Since we cannot directly append a React component to a DOM element,
-            // we need to render the icon component to a temporary div and then move the content.
-            const tempDiv = document.createElement('div');
-            const root = ReactDOM.createRoot(tempDiv);
-            root.render(icon, () => {
-                while (tempDiv.firstChild) {
-                    closeButton.appendChild(tempDiv.firstChild);
-                }
-            });
-
             // Add click event listener to remove the iframe and the container
             closeButton.addEventListener('click', () => {
                 iframeContainer.remove();
             });
+            closeButton.className = 'btn btn-secondary';
+            closeButton.innerHTML = 'x';
+            closeButton.style.paddingTop = '0';
+            closeButton.style.paddingBottom = '0';
 
             // Append the close button to the container
             iframeContainer.appendChild(closeButton);
@@ -233,7 +230,7 @@ const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdate
     };
 
     if (isFetching) {
-        return (<Spinner animation="border" role="status">
+        return (<Spinner animation="border" role="status" ref=''>
             <span className="visually-hidden">
                 Loading...</span>
         </Spinner>);
@@ -285,7 +282,7 @@ const FilesList = ({ folderId, isNotRootFolder, setIsLoading, updated, setUpdate
                     {files.length === 0 && <p>No files found</p>}
                 </span>
                 {isNotRootFolder && <FileUpload folderId={folderId} setIsLoading={setIsLoading} files={files} setRefresh={setRefresh} />}
-                {isOpening && <Spinner animation="border" role="status"> <span className="visually-hidden">Loading...</span></Spinner>}
+                {isOpening && <Spinner animation="border" role="status" ref="spinnerRef"> <span className="">Loading the file on browser ...</span></Spinner>}
             </div>
         );
     }

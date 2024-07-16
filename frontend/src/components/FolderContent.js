@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import api, { baseUrl } from '../api.js'; // Adjust the path according to your file structure
 import {BsFolder2Open, BsThreeDotsVertical, BsArrowLeftSquare} from 'react-icons/bs';
@@ -28,6 +28,7 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
     const [showRenameFile, setShowRenameFile] = useState(false);
     const [isMovable, setIsMovable] = useState(false);
     const [downloadProgress, setDownloadProgress] = useState(0);
+    const spinnerRef = useRef(null);
 
 
 
@@ -79,6 +80,12 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
         fetchFolders(token);
     }, [token, updated]);
 
+
+    useEffect(() => {
+        if (isLoading) {
+            spinnerRef.current?.scrollIntoView({ behavior: 'smooth' }); // Scroll to the spinner
+        }
+    }, [isLoading]);
 
     const handleClick = (id, type = 'null') => {
         switch (type) {
@@ -363,7 +370,7 @@ const FolderContent = ({ token, folderId, setFolderId, shared = false }) => {
                         }
                         {isLoading &&
                             <span>Loading please wait...
-                                <Spinner animation="border" role="status">
+                                <Spinner animation="border" role="status" ref={spinnerRef}>
                                     <span className="visually-hidden">
                                         Loading...</span>
                                 </Spinner></span>}
