@@ -1,20 +1,21 @@
 import React, { useState, useEffect} from 'react';
-import { Image } from 'react-bootstrap';
+import { Image, Button } from 'react-bootstrap';
+
 
 
 const Banner = () => {
-    const [installPrompt, setInstallPrompt] = useState(null);
-  const user = localStorage.getItem('email');
-   
-    // change default behavior of the install prompt  
+  const [installPrompt, setInstallPrompt] = useState(null);
+  const email = localStorage.getItem('email');
   useEffect(() => {
     const beforeInstallPromptHandler = (e) => {
       // Prevent the mini-infobar from appearing on mobile
       e.preventDefault();
+      // Save the event so it can be triggered later.
       setInstallPrompt(e);
     };
-
     
+
+    window.addEventListener('beforeinstallprompt', beforeInstallPromptHandler);
 
     return () => {
       window.removeEventListener('beforeinstallprompt', beforeInstallPromptHandler);
@@ -22,14 +23,25 @@ const Banner = () => {
   }, []);
 
   const handleInstallClick = () => {
-      if (installPrompt) {
-          installPrompt.prompt();
-          // Wait for the user to respond to the prompt
-          installPrompt.userChoice.then((choiceResult) => {
-              setInstallPrompt(null);
-          });
+    // Show the install prompt
+    installPrompt.prompt();
+    // Wait for the user to respond to the prompt
+    installPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        console.log('User accepted the install prompt');
+      } else {
+        console.log('User dismissed the install prompt');
       }
+      setInstallPrompt(null);
+    });
   };
+
+  const logoutClick = (e) => {
+    e.preventDefault();
+    localStorage.removeItem('email');
+    localStorage.removeItem('token');
+    window.location.href = '/login';
+  }
    
    return ( 
    <div className='flex-container'>
@@ -39,13 +51,28 @@ const Banner = () => {
         </a>
         </div>
         
-        {installPrompt && (
-        <button className="btn btn-primary" onClick={handleInstallClick}>
+        {installPrompt  && (
+        <Button className='btn btn-link'style={{height:'80px', margin:'auto 30px',color:'white'}} onClick={handleInstallClick}>
             Install App
-        </button>
-        
-        )}
-        </div>
+        </Button>)}
+        { !email
+         && 
+        (<div style={{alignContent:'center'}}>
+            <a href='/login' style={{height:'80px', margin: 'auto 30px', color:'white',fontSize:'1.1rem' }}>
+          Login  </a>
+          <a href='/register' style={{height:'80px', margin: 'auto 30px', color:'white',fontSize:'1.1rem' }}>
+          Register
+          </a>
+        </div>)
+        }
+        { email &&
+        (<div style={{alignContent:'center'}}>
+            <Button className='btn btn-link' onClick={(e)=>logoutClick(e)} style={{height:'80px', margin: 'auto 30px', color:'white',fontSize:'1.1rem' }}>
+          Logout 
+          </Button>
+        </div>)
+        }
+              </div>
     );
 };
 

@@ -15,7 +15,11 @@ const FileUpload = ({ folderId, setIsLoading, setRefresh }) => {
     e.preventDefault();
     setIsLoading(true);
     const formData = new FormData();
-
+    if (!selectedFiles) {
+      alert('Please select a file to upload');
+      setIsLoading(false);
+      return;
+    }
     for (let i = 0; i < selectedFiles.length; i++) {
       formData.append('files', selectedFiles[i]);
     }

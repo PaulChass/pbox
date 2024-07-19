@@ -32,7 +32,7 @@ router.post('/create',  async (req, res) => {
 
 // Route to retrieve folders based on shareable link token
 // add chackShareableLinkType to eable auht 
-router.get('/:token',  async (req, res) => {
+router.get('/:token', checkShareableLinkType, async (req, res) => {
   const token = req.params.token;
   try {
     // Find the shareable link in the database
@@ -76,7 +76,6 @@ router.get('/:token',  async (req, res) => {
 
 router.post('/:token/upload', uploadFiles);
 
-//router.post('/',checkShareableLinkType, createFolder);
 
 
 

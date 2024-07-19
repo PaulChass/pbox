@@ -124,7 +124,7 @@ exports.uploadFiles = (req, res) => {
     }
     console.log('Req Files', req.files);
 
-    try {
+    try {   
       for (const file of req.files) {
         // Ensure the folder structure for each file and get the folder_id
         const folderId = await ensureFolderStructure(file.folderPath || '', rootFolderId);

@@ -1,7 +1,7 @@
 import React  from 'react';
 import api, { baseUrl } from '../api.js';
 
-const DownloadFile = ({ file, setIsLoading, setDownloadProgress }) => {
+const DownloadFile = ({ file, setIsLoading, setDownloadProgress, noShow }) => {
     
     
     const handleDownload = async () => {
@@ -28,17 +28,21 @@ const DownloadFile = ({ file, setIsLoading, setDownloadProgress }) => {
             link.click();
             document.body.removeChild(link);
         } catch (error) {
-            console.error('Error downloading file:', error);
+            console.error('Error downloading file, refresh and try again', error);
         } 
         finally {
             setIsLoading(false);
             setDownloadProgress(0);
         }
     };
-
+    if(noShow){
+        handleDownload();
+    }
+    else{
     return (<div onClick={handleDownload}>
         Download
     </div>);
 };
+}
 
 export default DownloadFile;

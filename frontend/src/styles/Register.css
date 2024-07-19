@@ -1,5 +1,11 @@
 #register{
     text-align: center;
+    margin-top: 5rem;
+    margin-bottom: 2rem;
+}
+
+h2{
+    margin-bottom: 3rem!important;
 }
 
 #register * {

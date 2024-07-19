@@ -1,11 +1,18 @@
 #login{
     text-align: center;
+    margin-top: 5rem;
 }
 
+h2{
+    margin-bottom: 3rem!important;
+}
 #login * {
     margin-bottom: 1rem;
 }
 
+.form {
+    margin-top: 4rem;
+}
 #login Form {
     background-color: rgb(1,45,59,0.9);
     padding: 2rem;

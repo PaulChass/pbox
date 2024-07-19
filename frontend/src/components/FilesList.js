@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import ReactDOM from 'react-dom/client';
 import api, { baseUrl } from '../api.js'; // Adjust the path according to your file structure
 import FileUpload from './FileUpload';
 import DownloadFile from './DownloadFile';
@@ -10,7 +9,7 @@ import { useLocation } from 'react-router-dom';
 import '../styles/FileList.css';
 import { Dropdown } from 'react-bootstrap';
 import * as BsIcons from "react-icons/bs";
-import { BsThreeDotsVertical, BsX } from 'react-icons/bs';
+import { BsThreeDotsVertical } from 'react-icons/bs';
 
 const FilesList = ({ folderId, showUpload, setIsLoading, updated, setUpdated,
     showRenameFile, setShowRenameFile, isMovable, setIsMovable,
@@ -19,29 +18,33 @@ const FilesList = ({ folderId, showUpload, setIsLoading, updated, setUpdated,
 }) => {
     const [files, setFiles] = useState([]);
     const [isFetching, setIsFetching] = useState(false);
-    const [isOpening, setIsOpening] = useState(false);
     const [refresh, setRefresh] = useState(false);
     const [error, setError] = useState(null);
+    const [showVideoPlayer, setShowVideoPlayer] = useState(false);
+    const [currentVideoUrl, setCurrentVideoUrl] = useState(null);
     const token = localStorage.getItem('token');
     const location = useLocation();
-    const spinnerRef = useRef(null); 
+    const spinnerRef = useRef(null);
     const frameRef = useRef(null);
+
+    const userAgent = navigator.userAgent;
+
+
 
 
 
     const [showRenameFileId, setShowRenameFileId] = useState(null);
 
 
+
     useEffect(() => {
+        setShowVideoPlayer(false);
+        setCurrentVideoUrl(null);
         setIsFetching(true);
         fetchFiles();
     }, [folderId, location.pathname, updated, refresh]);
 
-    useEffect(() => {
-        if (isOpening) {
-            spinnerRef.current?.scrollIntoView({ behavior: 'smooth' }); // Scroll to the spinner
-        }
-    }, [isOpening]);
+
 
     const handleClick = (id, type) => {
         if (type === 'move') {
@@ -144,95 +147,150 @@ const FilesList = ({ folderId, showUpload, setIsLoading, updated, setUpdated,
         );
     }
 
-    const handleFileClick = async (fileId) => {
-        try {
-            let getUrl = `${baseUrl}/files/${fileId}`;
-            setIsOpening(true);
-            const response = await api.get(getUrl, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${token}`
-                },
-                responseType: 'blob', // Ensure Axios treats the response as a Blob
-                withCredentials: true,
-                onDownloadProgress: (progressEvent) => {
-                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                    setDownloadProgress(percentCompleted);
-                }
-            });
-
-            // Assuming Axios or similar, the actual Blob is in response.data
-            const fileBlob = response.data; // Directly use the Blob from the response
-            const fileBlobUrl = window.URL.createObjectURL(fileBlob);
-
-            // Create an iframe and set its source to the Blob URL
-            const iframe = document.createElement('iframe');
-            iframe.src = fileBlobUrl;
-            iframe.style.width = '100%';
-            iframe.style.minHeight = '300px'; // Adjust the height as needed
-            iframe.style.border = 'none';
-
-
-            // Create a container for the iframe and the close button
-            const iframeContainer = document.createElement('div');
-            iframeContainer.className = 'iframeContainer'; // So the close button can be absolutely positioned within
-
-            // Append the iframe to the container
-            iframeContainer.appendChild(iframe);
-            iframeContainer.style.display = 'none'; // Hide the container initially
-
-            // Create the close button
-            const closeButton = document.createElement('button');
-            closeButton.className = 'btn btn-secondary'
-            closeButton.style.position = 'absolute';
-            closeButton.style.top = '10px'; // Adjust as needed
-            closeButton.style.right = '10px'; // Adjust as needed
-            closeButton.style.zIndex = '10'; // Ensure it's above the iframe
-            closeButton.style.fontSize = '1.2em'; // Adjust as needed
-            // Create the X icon element using React.createElement since we are manipulating DOM directly
-            // Add click event listener to remove the iframe and the container
-            closeButton.addEventListener('click', () => {
-                iframeContainer.remove();
-            });
-            closeButton.className = 'btn btn-secondary';
-            closeButton.innerHTML = 'x';
-            closeButton.style.paddingTop = '0';
-            closeButton.style.paddingBottom = '0';
-
-            // Append the close button to the container
-            iframeContainer.appendChild(closeButton);
-
-            // Assuming iframe is your iframe element
-            iframe.onload = function () {
-                const content = iframe.contentWindow || iframe.contentDocument;
-                if(content) {iframeContainer.style.display = 'block';};
-                try {
-                    var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                    var images = iframeDoc.querySelectorAll('img'); // Adjust the selector as needed
-                    // Add a classname to each image
-                    images.forEach(function (img) {
-                        img.style.display = 'block';
-                        img.style.webkitUserSelect = 'none';
-                        img.style.maxWidth = '100%';
-                        img.style.maxHeight = '100%';
-                        img.style.objectFit = 'contain';
-                        img.style.margin = 'auto';
-                    });
-                } catch (error) {
-                    console.error('Error accessing iframe content:', error);
-                }
-            };
-
-            // Append the container to the document, replacing iframe append
-            const container = document.querySelector('.frame'); // Ensure you have a container with the class 'section'
-            container.innerHTML = ''; // Clear the container's content
-            container.appendChild(iframeContainer);
-        } catch (error) {
-            console.error('Error fetching file:', error);
-            alert('Error fetching file, refresh the page and try again.');
+    const handleFileClick = async (fileId, fileName) => {
+        const fileExtension = fileName.split('.').pop();
+        if (fileExtension === 'mp4' || fileExtension === 'avi' || fileExtension === 'mkv') {
+            // Check if a video is currently being played
+            if (showVideoPlayer && currentVideoUrl) {
+                setCurrentVideoUrl(null);
+                setShowVideoPlayer(false);
+                // Use a timeout to ensure the previous video is properly reset before setting the new URL
+                setTimeout(() => {
+                    const videoUrl = `${baseUrl}/files/${fileId}/stream`;
+                    setCurrentVideoUrl(videoUrl);
+                    setShowVideoPlayer(true);
+                }, 100);
+            } else {
+                const videoUrl = `${baseUrl}/files/${fileId}/stream`;
+                setCurrentVideoUrl(videoUrl);
+                setShowVideoPlayer(true);
+            }
         }
-        setIsOpening(false);
-        frameRef.current?.scrollIntoView({ behavior: 'smooth' }); // Scroll to the spinner
+        // If pdf on chrome or samsung mobile, download the file
+        else if (fileExtension === 'pdf' 
+            && (userAgent.includes('Chrome') || userAgent.includes('Samsung'))
+            && userAgent.includes('Android')) {
+            const file = { id: fileId, name: fileName };
+            setIsLoading(true);
+            try {
+                const response = await api.get(`${baseUrl}/files/download/${file.id}`, {
+                    responseType: 'blob',
+                    onDownloadProgress: progressEvent => {
+                        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                        setDownloadProgress(percentCompleted);
+                    },
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                setDownloadProgress(0);
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', file.name); // Adjust filename as needed
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (error) {
+                console.error('Error downloading file, refresh and try again', error);
+            }
+            finally {
+                setIsLoading(false);
+                setDownloadProgress(0);
+            }
+        }
+        else {
+            try {
+                let getUrl = `${baseUrl}/files/${fileId}`;
+                setIsLoading(true);
+                const response = await api.get(getUrl, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    responseType: 'blob', // Ensure Axios treats the response as a Blob
+                    withCredentials: true,
+                    onDownloadProgress: (progressEvent) => {
+                        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                        setDownloadProgress(percentCompleted);
+                    }
+                });
+
+                // Assuming Axios or similar, the actual Blob is in response.data
+                const fileBlob = response.data; // Directly use the Blob from the response
+                const fileBlobUrl = window.URL.createObjectURL(fileBlob);
+
+                // Create an iframe and set its source to the Blob URL
+                const iframe = document.createElement('iframe');
+                iframe.src = fileBlobUrl;
+                iframe.style.width = '100%';
+                iframe.style.minHeight = '300px'; // Adjust the height as needed
+                iframe.style.border = 'none';
+
+
+
+                // Create a container for the iframe and the close button
+                const iframeContainer = document.createElement('div');
+                iframeContainer.className = 'iframeContainer'; // So the close button can be absolutely positioned within
+
+                // Append the iframe to the container
+                iframeContainer.appendChild(iframe);
+                iframeContainer.style.display = 'none'; // Hide the container initially
+
+                // Create the close button
+                const closeButton = document.createElement('button');
+                closeButton.className = 'btn btn-secondary'
+                closeButton.style.position = 'absolute';
+                closeButton.style.top = '10px'; // Adjust as needed
+                closeButton.style.right = '10px'; // Adjust as needed
+                closeButton.style.zIndex = '10'; // Ensure it's above the iframe
+                closeButton.style.fontSize = '1.2em'; // Adjust as needed
+                // Create the X icon element using React.createElement since we are manipulating DOM directly
+                // Add click event listener to remove the iframe and the container
+                closeButton.addEventListener('click', () => {
+                    iframeContainer.remove();
+                });
+                closeButton.className = 'btn btn-secondary';
+                closeButton.innerHTML = 'x';
+                closeButton.style.paddingTop = '0';
+                closeButton.style.paddingBottom = '0';
+
+                // Append the close button to the container
+                iframeContainer.appendChild(closeButton);
+                iframe.onload = function () {
+                    const content = iframe.contentWindow || iframe.contentDocument;
+                    if (content) { iframeContainer.style.display = 'block'; };
+                    try {
+                        var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                        var images = iframeDoc.querySelectorAll('img'); 
+                        // Add a classname to each image
+                        images.forEach(function (img) {
+                            img.style.display = 'block';
+                            img.style.webkitUserSelect = 'none';
+                            img.style.maxWidth = '100%';
+                            img.style.maxHeight = '100%';
+                            img.style.objectFit = 'contain';
+                            img.style.margin = 'auto';
+                        });
+                    } catch (error) {
+                        console.error('Error accessing iframe content:', error);
+                    }
+                };
+
+                // Append the container to the document, replacing iframe append
+                const container = document.querySelector('.frame'); // Ensure you have a container with the class 'section'
+                container.innerHTML = ''; // Clear the container's content
+                container.appendChild(iframeContainer);
+            } catch (error) {
+                console.error('Error fetching file:', error);
+                // Check if important element exists in the iframe
+            }
+
+
+            setDownloadProgress(0);
+            setIsLoading(false);
+            frameRef.current?.scrollIntoView({ behavior: 'smooth' }); // Scroll to the spinner
+        }
     };
 
     if (isFetching) {
@@ -242,8 +300,16 @@ const FilesList = ({ folderId, showUpload, setIsLoading, updated, setUpdated,
         </Spinner>);
     } else {
         return (
-            <div className='section'>
-                <div className='frame' ref={frameRef}></div>
+            <div className='section' ref={frameRef}>
+
+                <div className='frame' ></div>
+                {showVideoPlayer && (
+                    <video width="320" height="240" controls>
+        
+                        <source src={currentVideoUrl} type="video/mp4"/>    
+                        Your browser does not support the video tag.
+                    </video>
+                )}
                 <span>
                     {files.sort((a, b) => a.name.localeCompare(b.name)).map(file => (
                         <li key={file.id} style={{ display: 'flex', justifyContent: 'center' }}
@@ -256,11 +322,10 @@ const FilesList = ({ folderId, showUpload, setIsLoading, updated, setUpdated,
                             }
                             onDragOver={(e) => e.preventDefault()}
                         >
-
                             {(showRenameFile && showRenameFileId === file.id) ?
                                 <RenameFile fileId={file.id} setFiles={setFiles} setShowRenameFile={setShowRenameFile} />
                                 :
-                                <button onClick={() => handleFileClick(file.id)} style={{ textDecoration: 'underline', border: 'none', background: 'none', cursor: 'pointer', color: 'white' }}>{displayFile(file.name)}</button>
+                                <button onClick={() => handleFileClick(file.id, file.name)} style={{ textDecoration: 'underline', border: 'none', background: 'none', cursor: 'pointer', color: 'white' }}>{displayFile(file.name)}</button>
                             }
                             <Dropdown >
                                 <Dropdown.Toggle variant="dark" id="dropdown-files" custom="true" className='no-arrow'>
@@ -288,12 +353,7 @@ const FilesList = ({ folderId, showUpload, setIsLoading, updated, setUpdated,
                     {files.length === 0 && <p>No files found</p>}
                 </span>
                 <span ref={spinnerRef}>
-                {showUpload && <FileUpload folderId={folderId} setIsLoading={setIsLoading} files={files} setRefresh={setRefresh} />}
-                {isOpening && <span>Loading please wait + 
-                                <Spinner animation="border" role="status" > 
-                                    <span className="visually-hidden">Loading</span>
-                                </Spinner>
-                              </span>}
+                    {showUpload && <FileUpload folderId={folderId} setIsLoading={setIsLoading} files={files} setRefresh={setRefresh} />}
                 </span >
             </div>
         );
