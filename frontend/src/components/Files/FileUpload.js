@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { baseUrl } from '../api.js'; // Adjust the path according to your file structure
+import { baseUrl } from '../../api.js'; // Adjust the path according to your file structure
 import { Form, Button, ProgressBar } from 'react-bootstrap';
 import { BsXCircle } from 'react-icons/bs';
 
-const FileUpload = ({ folderId, setIsLoading, setRefresh }) => {
+const FileUpload = ({ folderId, setIsLoading, setUpdatedFileList }) => {
   const [selectedFiles, setSelectedFiles] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -32,11 +32,12 @@ const FileUpload = ({ folderId, setIsLoading, setRefresh }) => {
 
     // Client-side example using XMLHttpRequest for file upload and progress tracking
     var xhr = new XMLHttpRequest();
-
+    
     xhr.upload.addEventListener('progress', function (e) {
       if (e.lengthComputable) {
         var percentComplete = (e.loaded / e.total) * 100;
         console.log(percentComplete + '% uploaded');
+        setUploadProgress(percentComplete);
       }
     }, false);
 
@@ -51,18 +52,12 @@ const FileUpload = ({ folderId, setIsLoading, setRefresh }) => {
       }
     });
 
-    xhr.open('POST', postUrl, true);
-    xhr.send(formData); xhr.upload.onprogress = function (e) {
-      if (e.lengthComputable) {
-        const progress = (e.loaded / e.total) * 100;
-        setUploadProgress(progress); // Update state with the progress
-      }
-    };
+    
 
     xhr.onload = function () {
       if (xhr.status === 200) {
         alert('Files uploaded successfully');
-        setRefresh(true);
+        setUpdatedFileList(true);
       } else {
         console.error('Error uploading files:', xhr.statusText);
         alert('Error uploading files');
@@ -78,8 +73,8 @@ const FileUpload = ({ folderId, setIsLoading, setRefresh }) => {
       setIsLoading(false);
       setUploadProgress(0);
     };
-
-    xhr.setRequestHeader('Content-Type', 'multipart/form-data');
+    xhr.open('POST', postUrl, true);
+   // xhr.setRequestHeader('Content-Type', 'multipart/form-data');
     xhr.withCredentials = true;
 
     xhr.send(formData);

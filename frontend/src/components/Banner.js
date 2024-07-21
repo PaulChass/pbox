@@ -2,7 +2,16 @@ import React, { useState, useEffect} from 'react';
 import { Image, Button } from 'react-bootstrap';
 
 
-
+/**
+ * Component for the site banner
+ * 
+ * @returns {JSX.Element} - Site banner
+ * 
+ * @example
+ * return (
+ *  <Banner />
+ *  );  
+ */
 const Banner = () => {
   const [installPrompt, setInstallPrompt] = useState(null);
   const email = localStorage.getItem('email');

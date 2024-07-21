@@ -1,7 +1,19 @@
 import React, { useState } from 'react';
-import api , { baseUrl } from '../api.js'; 
+import api, { baseUrl } from '../../api.js';
 
-const DeleteFile = ({ fileId, setFiles }) => {
+/**
+ * 
+ * @param {Object} props
+ * @param {number} props.fileId - The id of the file to delete
+ * @param {Function} props.setFiles - Function to update the files list
+ *  
+ * @returns {JSX.Element} - Delete file button
+ * 
+ * @example
+ * return <DeleteFileButton fileId={fileId} setFiles={setFiles} />;
+ * 
+ */
+const DeleteFileButton = ({ fileId, setFiles }) => {
     const [isLoading, setIsLoading] = useState(false);
 
     const handleDelete = async () => {
@@ -33,6 +45,6 @@ const DeleteFile = ({ fileId, setFiles }) => {
             {isLoading && <p>Your file is being deleted</p>}
         </div>
     );
-}  
+}
 
-export default DeleteFile;  
+export default DeleteFileButton;

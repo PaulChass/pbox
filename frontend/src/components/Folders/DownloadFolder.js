@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import api , { baseUrl } from '../api.js'; // Adjust the path according to your file structure
-import '../styles/DownloadFolder.css'; 
+import React from 'react';
+import api, { baseUrl } from '../../api.js'; // Adjust the path according to your file structure
+import '../../styles/DownloadFolder.css';
 const DownloadFolder = ({ folderId, isLoading, setIsLoading, folderName, setDownloadProgress }) => {
 
     const handleDownload = async () => {
@@ -17,15 +17,13 @@ const DownloadFolder = ({ folderId, isLoading, setIsLoading, folderName, setDown
                     Authorization: `Bearer ${localStorage.getItem('token')}` // Adjust for your authentication method
                 }
             });
-            
-        let filename = folderName + '.zip'; // Default filename if Content-Disposition is not found or parsed
-        
+            console.log('Downloaded folder:', response);
 
-            console.log(response.headers['content-disposition']);
-            console.log(response);
+            let filename = folderName + '.zip'; // Default filename if Content-Disposition is not found or parsed
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
+            link.target = '_blank';
             link.setAttribute('download', filename); // Adjust filename as needed
             document.body.appendChild(link);
             link.click();
@@ -35,14 +33,14 @@ const DownloadFolder = ({ folderId, isLoading, setIsLoading, folderName, setDown
         } finally {
             //Reset download status
             setIsLoading(false);
-            setDownloadProgress(0); 
+            setDownloadProgress(0);
         }
     };
 
     return (<div onClick={handleDownload} disabled={isLoading}>
-          {isLoading ? 'Downloading...' : 'Download'}
+        {isLoading ? 'Downloading...' : 'Download'}
 
-        </div>    );
+    </div>);
 };
 
 export default DownloadFolder;

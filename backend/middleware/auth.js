@@ -1,18 +1,26 @@
 const jwt = require('jsonwebtoken');
-const  User = require('../models/User');
+const User = require('../models/User');
 
+/**
+ * Middleware function to authenticate requests.
+ * 
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @param {Function} next - The next middleware function.
+ * @returns {Promise<void>} - A promise that resolves when authentication is successful or rejects with an error.
+ */
 const authenticate = async (req, res, next) => {
     const authHeader = req.headers['authorization'];
     if (!authHeader) {
         console.error('No authorization header');
-        return res.status(401).json({ error: 'No token provided' });
+        return next(new Error('No token provided'));
     }
 
     const token = authHeader.split(' ')[1];
     
     if (!token) {
-        console.error('No token in authorization header');
-        return res.status(401).json({ error: 'No token provided' });
+        console.log('No token provided');
+        return next(new Error('No token provided'));
     }
 
     try {
@@ -21,16 +29,15 @@ const authenticate = async (req, res, next) => {
         const user = await User.findByPk(decoded.id);
         if (!user) {
             console.error('User not found for decoded token');
-            return res.status(401).json({ error: 'Invalid token' });
+            return next(new Error('Invalid token'));
         }
 
         req.user = user;
         next();
     } catch (error) {
-        console.error('JWT verification error:', error);
-        res.status(401).json({ error: 'Unauthorized' });
+        console.log('Failed to authenticate token:', error);
+        return next(new Error('Failed to authenticate token'));
     }
 };
-
 
 module.exports = authenticate;

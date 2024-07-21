@@ -1,3 +1,10 @@
+/**
+ * Middleware to fetch the shareable link and check its type
+ * @param {Object} req - The request object
+ * @param {Object} res - The response object
+ * @param {Function} next - The next middleware function
+ * @returns {void}
+ */
 const express = require('express');
 const  authenticate  = require('../middleware/auth');
 const ShareableLink = require('../models/ShareableLink');

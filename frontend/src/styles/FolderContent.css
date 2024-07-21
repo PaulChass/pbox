@@ -113,7 +113,19 @@ li{
 }
 
 .no-arrow::after {
-    display: none!important
+    display: none!important;
+    font-size: small;
+    border: none;
+}
+
+.no-arrow{
+    background-color: rgba(0,0,0,0)!important;
+    border:none;
+}
+
+.no-arrow:hover{
+    background-color: rgba(0,0,0,0)!important;
+    border:none;
 }
 
 .cardTitle {

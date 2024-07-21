@@ -5,6 +5,13 @@ const sequelize = require('./config/db');
 const authRoutes = require('./routes/auth');
 const folderRoutes = require('./routes/folder');
 const filesRoutes = require('./routes/files');
+const videoRoutes = require('./routes/video');
+/**
+ * The routes for shareable links.
+ *
+ * @type {Object}
+ * @module shareableLinkRoutes
+ */
 const shareableLinkRoutes = require('./routes/shareableLink');
 
 
@@ -15,22 +22,23 @@ const app = express();
 require('dotenv').config();
 
 app.use(express.json());
-app.use(bodyParser.json()); // You can remove this line if using express.json()
+app.use(bodyParser.json());
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: 'http://localhost:3000', // replace with your frontend URL
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   allowedHeaders: 'Content-Type, Authorization',  
-  credentials: true, // Autoriser l'envoi de cookies ou d'authentification HTTP
+  credentials: true, 
 }));
 
 // Handle preflight requests
 app.options('*', cors());
 
+// Routes 
 app.use('/api/auth', authRoutes);
 app.use('/api/folders', folderRoutes);
 app.use('/api/files', filesRoutes);
 app.use('/api/shareable-links', shareableLinkRoutes );
-
+app.use('/api/videos', videoRoutes );
 
 // Example route to delete a user by ID
 app.delete('/api/users/:userId', async (req, res) => {

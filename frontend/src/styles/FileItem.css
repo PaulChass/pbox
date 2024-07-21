@@ -1,0 +1,21 @@
+.file-item {
+    display: flex;
+    justify-content: center;
+}
+
+.file-name-button{
+text-decoration: underline;
+border: none;
+background: none;
+cursor: pointer;
+color: white;
+}
+
+.resetStyles{
+    all: unset;
+}
+
+.iFrameContainer{
+    display: block;
+    width: -webkit-fill-available;
+}

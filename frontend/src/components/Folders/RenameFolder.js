@@ -1,18 +1,17 @@
 import React, { useState } from 'react';
-import api , { baseUrl } from '../api.js'; 
+import api , { baseUrl } from '../../api.js'; 
 import { BsXCircle } from 'react-icons/bs';
 import Form from 'react-bootstrap/Form';
 import { FormControl } from 'react-bootstrap';
 
-const RenameFolder = ({ folderId, setUpdated, setShowRename }) => {    
+const RenameFolder = ({ folderId, setShowRename, setFolders }) => {    
     const [folderName, setFolderName] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-
+    const token = localStorage.getItem('token');    
+    
     const handleRename = async () => {
         if(!folderName.trim()) {
             return;
         }
-        setIsLoading(true);
         try {
             const requestData = { 
                 name: folderName
@@ -20,20 +19,21 @@ const RenameFolder = ({ folderId, setUpdated, setShowRename }) => {
 
             const config = {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${token}`
                 }
             };
-
-            const response = await api.patch(`${baseUrl}/folders/${folderId}/rename`, requestData, config);
-            console.log('Folder renamed:', response.data);
-            setUpdated(true);
-            setShowRename(false);
-
-            
+            await api.patch(`${baseUrl}/folders/${folderId}/rename`, requestData, config);
+            setFolders(prevFolders => prevFolders.map(folder => {
+                if(folder.id === folderId) {
+                    return { ...folder, name: folderName };
+                }
+                return folder;
+            }));           
         } catch (error) {
             console.error('Error renaming folder:', error);
-        } finally {
-            setIsLoading(false);
+        }
+        finally {
+            setShowRename(false);
         }
     };
 
@@ -52,9 +52,7 @@ const RenameFolder = ({ folderId, setUpdated, setShowRename }) => {
                 className='rename-input'
             />
             <BsXCircle style={{margin:'0.5rem'}} onClick={()=>{setShowRename(false)}}/>
-
            </Form>
-
         </div>
     );
 }

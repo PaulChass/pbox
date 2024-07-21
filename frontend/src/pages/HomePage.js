@@ -1,14 +1,14 @@
 import React, {useState} from 'react';
-import FolderContent from '../components/FolderContent';
+import Drive from '../components/Drive';
 import { Button } from 'react-bootstrap';
 
-const HomePage = ({ }) => {
+const HomePage = () => {
     const email = localStorage.getItem('email');
     const token = localStorage.getItem('token');
     const [folderId, setFolderId] = useState(null);
 
     return (<div>
-        {email && <FolderContent 
+        {email && <Drive 
             token={token} 
             folderId={folderId}
             setFolderId={setFolderId}

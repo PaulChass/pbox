@@ -1,17 +1,18 @@
 import React , {useState} from 'react';
-import FolderContent from '../components/FolderContent';
+import Drive from '../components/Drive';
+
+/**
+ * ShareableLinkPage component is a page that displays the content of a shared folder.
+ * 
+ * @returns {JSX.Element} - ShareableLinkPage component
+ */
 
 const ShareableLinkPage = () => {
     const [folderId, setFolderId] = useState(null);
-
-    
     const authToken = localStorage.getItem('token');
-
-
     
-
     return (
-        <FolderContent 
+        <Drive 
             token={authToken}
             folderId={folderId}
             setFolderId={setFolderId}

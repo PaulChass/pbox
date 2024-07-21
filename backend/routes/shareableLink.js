@@ -1,43 +1,20 @@
 const express = require('express');
-const { uploadFiles } = require('../controllers/shareableLinkController');
+const { createShareableLink } = require('../controllers/shareableLinkController');
 const router = express.Router();
-const authenticate = require('../middleware/auth');
 const checkShareableLinkType = require('../middleware/checkShareableLinkType');
 const ShareableLink = require('../models/ShareableLink');
-const crypto = require('crypto');
 const Folder = require('../models/Folder');
 const File = require('../models/File');
 
-
 // Create shareable link
-router.post('/create',  async (req, res) => {
-  const { type, folderId, expiresAt } = req.body;
-  try {
-    // Generate a unique token for the shareable link
-    const token = crypto.randomBytes(20).toString('hex');
-    // Create the shareable link in the database
-    const link = await ShareableLink.create({
-      token,
-      type,
-      folderId,
-      expiresAt,
-    });
+router.post('/create', createShareableLink);
 
-    res.json({ link });
-  } catch (error) {
-    console.error('Failed to create shareable link:', error);
-    res.status(500).json({ error: 'Failed to create shareable link' });
-  }
-});
-
-// Route to retrieve folders based on shareable link token
-// add chackShareableLinkType to eable auht 
-router.get('/:token', checkShareableLinkType, async (req, res) => {
+// Folder routes
+router.get('/:token/:parent_id?', checkShareableLinkType, async (req, res) => {
   const token = req.params.token;
   try {
     // Find the shareable link in the database
     const shareableLink = await ShareableLink.findOne({ where: { token } });
-    
     if (!shareableLink) {
       return res.status(404).json({ error: 'Shareable link not found' });
     }
@@ -47,25 +24,20 @@ router.get('/:token', checkShareableLinkType, async (req, res) => {
     let folders = await Folder.findAll({ where: { parent_id: shareableLink.folderId } });
     let files = await File.findAll({ where: { folder_id: shareableLink.folderId } });
 
-    
-    // Recursive function to get all subfolders and their files
-    const getSubfoldersAndFiles = async (parentFolders) => {
-      for (const parentFolder of parentFolders) {
-          const subfolders = await Folder.findAll({ where: { parent_id: parentFolder.id } });
-          const subfolderFiles = await File.findAll({ where: { folder_id: parentFolder.id } });
-
-          folders = folders.concat(subfolders);
-          files = files.concat(subfolderFiles);
-
-          if (subfolders.length > 0) {
-              await getSubfoldersAndFiles(subfolders);
-          }
+    const getSubfoldersAndFiles = async (folders) => {
+      for (let i = 0; i < folders.length; i++) {
+        const subfolders = await Folder.findAll({ where: { parent_id: folders[i].id } });
+        const subfiles = await File.findAll({ where: { folder_id: folders[i].id } });
+        folders.push(...subfolders);
+        files.push(...subfiles);
+        if (subfolders.length > 0) {
+          await getSubfoldersAndFiles(subfolders);
+        }
       }
-  };
-
-  await getSubfoldersAndFiles(folders);
-
-
+      console.log('Folders:', folders); 
+    };
+    // Recursive function to get all subfolders and their files
+    await getSubfoldersAndFiles(folders);
     // Send folders data back to the client
     res.json({ folder: folder, type: shareableLink.type, folders: folders, files: files });
   } catch (error) {
@@ -73,10 +45,5 @@ router.get('/:token', checkShareableLinkType, async (req, res) => {
     res.status(500).json({ error: 'Failed to retrieve folders' });
   }
 });
-
-router.post('/:token/upload', uploadFiles);
-
-
-
 
 module.exports = router;

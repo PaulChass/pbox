@@ -1,6 +1,6 @@
 import axios from 'axios';
-const CACHE_NAME = 'version-1';
-const urlsToCache = [ 'index.html', 'offline.html' ];
+const CACHE_NAME = 'version-3';
+const urlsToCache = [    'offline.html' ];
 
 // Install SW
 self.addEventListener('install', (event) => {

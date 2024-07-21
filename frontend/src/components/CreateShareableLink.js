@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import api , { baseUrl } from '../api.js'; // Adjust the path according to your file structure
 import { Button } from 'react-bootstrap';
 
-const CreateShareableLink = ({ folderId, folderName }) => {
-  const [shareableLink, setShareableLink] = useState(null);
+const CreateShareableLink = ({ folderId, folderName, shareableLink, setShareableLink }) => {
   const [type, setType] = useState('private'); // Default to private link
   const [expiresAt, setExpiresAt] = useState('');
   const token = localStorage.getItem('token');
@@ -47,7 +46,7 @@ const CreateShareableLink = ({ folderId, folderName }) => {
 
   return (
     <div className='shareableLink'>
-      <h2>Create share link for: {folderName}</h2>
+      <h3>Create share link for: {folderName}</h3>
       <form onSubmit={handleSubmit}>
         
           <div> <label htmlFor="type">Type:</label>
@@ -73,12 +72,16 @@ const CreateShareableLink = ({ folderId, folderName }) => {
         <Button type="submit">Generate Link</Button>
         {shareableLink && (
           <div>
-            <p>Shareable Link:</p>
+            {/* Display the shareable link */}
             <a href={`https://pbox.paulchasseuil.fr/shareable-link/${shareableLink.token}`} target="_blank" rel="noopener noreferrer">
-            {`https://pbox.paulchasseuil.fr/shareable-link/${shareableLink.token}`}
+                        { shareableLink.token &&  
+                  `https://pbox.paulchasseuil.fr/shareable-link/${shareableLink.token}`}
             </a>
-            <Button onClick={() => copyToClipboard(`https://pbox.paulchasseuil.fr/shareable-link/${shareableLink.token}`)}>Copy Link</Button>
-          </div>
+            <br />
+            { shareableLink.token &&  
+              <Button onClick={() => copyToClipboard(`https://pbox.paulchasseuil.fr/shareable-link/${shareableLink.token}`)}>Copy Link</Button>
+            }
+              </div>
         )}
       </form>
     </div>

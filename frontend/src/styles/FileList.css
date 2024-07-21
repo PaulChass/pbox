@@ -7,8 +7,18 @@ li {
    padding: 0px 10px;
 }
 
+.videoAlert {
+    width: -moz-fit-content;
+    width: fit-content;
+    margin: auto;
+    font-size: 0.8rem;
+    font-style: italic;
+}
 
-
+#frameTitle{
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
 
 .section {
     padding-top: 1rem;
@@ -33,11 +43,7 @@ li {
     justify-content: center;
 }
 
-#dropdown-files{
-    background-color: rgba(10,10,10, 0);
-    font-size: small;
-    border: none;
-}
+
 
 .frame{
     width: 100%;
@@ -53,5 +59,12 @@ li {
     justify-content: center;
     margin-bottom: 0;
     position: relative;
-    background-color: aliceblue
+    background-color: rgba(0, 0, 0, 0);
+    width: -webkit-fill-available;
+    width: -moz-available;
+    width: fill-available;
+}
+
+.resetStyle {
+    all : unset;
 }

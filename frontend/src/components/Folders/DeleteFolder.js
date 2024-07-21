@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import api , { baseUrl } from '../api.js'; // Adjust the path according to your file structure
+import api , { baseUrl } from '../../api.js'; // Adjust the path according to your file structure
 
 const DeleteFolder = ({ folderId, setFolders }) => {
     const [isLoading, setIsLoading] = useState(false);
