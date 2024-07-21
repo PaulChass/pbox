@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import api , { baseUrl } from '../api.js'; 
 
-const RenameFile = ({ fileId, setFiles, setShowRenameFile }) => {
-    const [isLoading, setIsLoading] = useState(false);
+const RenameFile = ({ fileId, setFiles, setShowRenameFileId, setIsLoading }) => {
     const [newName, setNewName] = useState('');
 
     const handleRename = async () => {
@@ -28,7 +27,7 @@ const RenameFile = ({ fileId, setFiles, setShowRenameFile }) => {
             console.error('Error renaming file:', error);
         } finally {
             setIsLoading(false);
-            setShowRenameFile(false);
+            setShowRenameFileId(null);
         }
     };
 
