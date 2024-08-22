@@ -1,0 +1,80 @@
+<VirtualHost *:80>
+    ServerName balldontlie.fr
+    ServerAlias balldontlie.fr
+
+    # Uncomment the following line to force Apache to pass the Authorization
+    # header to PHP: required for "basic_auth" under PHP-FPM and FastCGI
+    #
+    # SetEnvIfNoCase ^Authorization$ "(.+)" HTTP_AUTHORIZATION=$1
+
+
+    DocumentRoot /var/www/balldontlie/public
+    <Directory /var/www/balldontlie/public>
+        AllowOverride None
+        Require all granted
+        FallbackResource /index.php
+    </Directory>
+
+    ProxyRequests Off
+    ProxyPass /pbox http://127.0.0.1:5000
+    ProxyPassReverse /pbox http://127.0.0.1:5000
+    Header set Access-Control-Allow-Origin "https://pbox.paulchasseuil.fr"
+    # uncomment the following lines if you install assets as symlinks
+    # or run into problems when compiling LESS/Sass/CoffeeScript assets
+    # <Directory /var/www/project>
+    #     Options FollowSymlinks
+    # </Directory>
+
+       <IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "https://pbox.paulchasseuil.fr"
+    Header set Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE, PATCH"
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+  </IfModule>
+
+    ErrorLog /var/log/apache2/project_error.log
+    CustomLog /var/log/apache2/project_access.log combined
+</VirtualHost>
+
+
+<VirtualHost *:443>
+    ServerName balldontlie.fr
+    ServerAlias balldontlie.fr
+
+    # Activez SSL
+    SSLEngine on
+    SSLCertificateFile /etc/apache2/sites-available/balldontlie.fr_ssl_certificate.cer
+    SSLCertificateChainFile /etc/apache2/sites-available/_.balldontlie.fr_ssl_certificate_INTERMEDIATE.cer
+    SSLCertificateKeyFile /etc/apache2/sites-available/_.balldontlie.fr_private_key.key
+
+
+  # Proxy configuration for Node.js
+    ProxyRequests Off
+    ProxyPass /pbox http://127.0.0.1:5000
+    ProxyPassReverse /pbox http://127.0.0.1:5000
+    Header set Access-Control-Allow-Origin "https://pbox.paulchasseuil.fr"
+
+    <IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "https://pbox.paulchasseuil.fr"
+    Header set Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE, PATCH"
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+  </IfModule>
+
+# Proxy config for symfony
+    DocumentRoot /var/www/balldontlie/public
+    <Directory /var/www/balldontlie/public>
+        AllowOverride None
+        Require all granted
+        FallbackResource /index.php
+    </Directory>
+
+    # uncomment the following lines if you install assets as symlinks
+    # or run into problems when compiling LESS/Sass/CoffeeScript assets
+    # <Directory /var/www/project>
+    #     Options FollowSymlinks
+    # </Directory>
+
+
+    ErrorLog /var/log/apache2/project_error.log
+    CustomLog /var/log/apache2/project_access.log combined
+    
+</VirtualHost>

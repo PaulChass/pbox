@@ -3,6 +3,7 @@ const fs = require('fs');
 const Folder = require('../models/Folder');
 const File = require('../models/File');
 
+
 exports.calculateFolderSize = async (folderId) => {
   const files = await File.findAll({ where: { folder_id: folderId } });
   let totalSize = 0;

@@ -18,7 +18,6 @@ const authenticateOrIsSharedDrive = (req, res, next) => {
       return next(); // User is authenticated
     }
 
-    console.log('You are not authenticated');
     // If not authenticated, check for shared drive access
     isSharedDrive(req, res, folderId,fileId, isSharedDriveErr => {
       if (!isSharedDriveErr) {

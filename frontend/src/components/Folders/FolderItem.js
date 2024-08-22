@@ -4,6 +4,7 @@ import { BsFolder2Open, BsThreeDotsVertical } from 'react-icons/bs';
 import RenameFolder from './RenameFolder';
 import DownloadFolder from './DownloadFolder';
 import DeleteFolder from './DeleteFolder';
+import { truncateFolderName } from './FolderUtilities';
 
 /**
  * FolderItem component displays a folder card with options to download, delete, share, rename, and move the folder.
@@ -97,7 +98,7 @@ const FolderItem = ({ folder, folders, handleDrop, setFolderId, setFolders, setS
 						{showRename && showRenameId === folder.id
 							? <RenameFolder folderId={folder.id} setShowRename={setShowRename} setFolders={setFolders} />
 							:
-							<span><BsFolder2Open></BsFolder2Open> {folder.name}</span>}
+							<span><BsFolder2Open></BsFolder2Open> {truncateFolderName(folder.name)}</span>}
 					</Card.Title>
 				</Card.Body>
 			</Card>

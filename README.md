@@ -1,7 +1,9 @@
-# John Crickett's Coding Challenge Solution
+# A solution to John Crickett's Dropbox Challenge
 
-This repository contains my solution to John Crickett's coding challenge. The project is divided into two main parts: the backend and the frontend.
-
+This repository contains my solution to John Crickett's coding challenge.
+(https://codingchallenges.fyi/challenges/challenge-dropbox/)
+ The project is divided into two main parts: the backend and the frontend.
+  
 ## Project Overview
 
 ### Backend
@@ -81,3 +83,4 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 ## Contact
 
 For any questions or feedback, please contact Paul Chasseuil at chasseuilpaul@gmail.com.
+ 

@@ -47,3 +47,10 @@ export const traverseFileTree = async (item, parentId, email, path = '', api, to
 	}
 	setIsLoading(false);
 };
+
+export const truncateFolderName = (folderName) => {	
+	if (folderName.length > 16) {
+		return folderName.substring(0, 16) + '...';
+	}
+	return folderName;
+};

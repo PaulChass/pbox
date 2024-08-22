@@ -10,6 +10,7 @@ const Login = () => {
   const navigate = useNavigate();
   let token = useParams().token; // Get token from URL
 
+  // Handle the login form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {

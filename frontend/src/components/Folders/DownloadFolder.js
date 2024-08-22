@@ -30,6 +30,7 @@ const DownloadFolder = ({ folderId, isLoading, setIsLoading, folderName, setDown
             document.body.removeChild(link);
         } catch (error) {
             console.error('Error downloading folder:', error);
+            alert('Error downloading folder, please refresh page and try again');
         } finally {
             //Reset download status
             setIsLoading(false);

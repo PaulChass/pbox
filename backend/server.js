@@ -6,6 +6,7 @@ const authRoutes = require('./routes/auth');
 const folderRoutes = require('./routes/folder');
 const filesRoutes = require('./routes/files');
 const videoRoutes = require('./routes/video');
+const syncRoutes = require('./routes/sync');
 /**
  * The routes for shareable links.
  *
@@ -39,6 +40,7 @@ app.use('/api/folders', folderRoutes);
 app.use('/api/files', filesRoutes);
 app.use('/api/shareable-links', shareableLinkRoutes );
 app.use('/api/videos', videoRoutes );
+app.use('/api/sync', syncRoutes);
 
 // Example route to delete a user by ID
 app.delete('/api/users/:userId', async (req, res) => {

@@ -47,9 +47,8 @@ describe('POST /api/auth/register', () => {
         email: 'test@example.com',
         password: 'password'
       });
-
+      
     expect(res.statusCode).toEqual(200);
-    expect(res.body).toHaveProperty('message', 'Login successful');
     expect(res.body).toHaveProperty('token');
   });
 

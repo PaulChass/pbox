@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback } from 'react';
 import api, { baseUrl } from '../../api';
 import { getFileNameWithoutExtension, getFileExtension, isVideoFile, isPDFOnMobileChrome } from './FileUtililities';
 import FileActionsDropdown from './FileActionsDropdown';
@@ -8,6 +8,22 @@ import { truncateFileName } from './FileUtililities';
 
 import '../../styles/FileItem.css';
 
+/**
+ * Represents a file item component.
+ *
+ * @param {Object} props - The component props.
+ * @param {Object} props.file - The file object.
+ * @param {boolean} props.isMovable - Indicates if the file is movable.
+ * @param {function} props.setFiles - The function to set the files.
+ * @param {function} props.setIsLoading - The function to set the loading state.
+ * @param {function} props.setDownloadProgress - The function to set the download progress.
+ * @param {function} props.setIsMovable - The function to set the movable state.
+ * @param {string} props.currentVideoUrl - The current video URL.
+ * @param {function} props.setCurrentVideoUrl - The function to set the current video URL.
+ * @param {function} props.setFrameTitle - The function to set the frame title.
+ * @param {Object} props.frameRef - The reference to the frame element.
+ * @returns {JSX.Element} The file item component.
+ */
 const FileItem = ({
     file,
     isMovable,
@@ -24,7 +40,8 @@ const FileItem = ({
     const token = localStorage.getItem('token');
     const userAgent = navigator.userAgent;
     const isDesktop = window.innerWidth > 768;
-    // Drag and drop file
+
+    
     const handleDragStart = (e) => {
         const dragData = JSON.stringify({ id: file.id, type: 'files' });
         e.dataTransfer.setData('application/json', dragData);
@@ -94,9 +111,7 @@ const FileItem = ({
 
     const downloadFile = (fileId, fileName = '', setDownloadProgress) => {
         let getUrl = `${baseUrl}/files/${fileName ? 'download/' : ''}${fileId}`;
-        //if url contains shareable link
         if (window.location.pathname.includes('shareable')) {
-            //add link to the url
             getUrl = getUrl + `/${window.location.pathname.split('/')[2]}`;
         }
 
@@ -126,56 +141,45 @@ const FileItem = ({
         const fileBlobUrl = window.URL.createObjectURL(fileBlob);
         const iframe = document.createElement('iframe');
         iframe.src = fileBlobUrl;
-        iframe.style.width = '100%';
-        iframe.style.minHeight = window.innerWidth > 768 ? '100vh' : '100%';
-        iframe.style.height = '100%';
-        iframe.style.border = 'none';
-
+        
         const iframeContainer = document.createElement('div');
         iframeContainer.className = 'iframeContainer';
-
+        iframeContainer.style.height = 'auto';
+    
         iframeContainer.appendChild(iframe);
-        iframeContainer.style.display = 'none';
-
+    
         const closeButton = document.createElement('button');
-        closeButton.className = 'btn btn-secondary';
-        closeButton.style.position = 'absolute';
-        closeButton.style.top = '10px';
-        closeButton.style.right = '10px';
-        closeButton.style.zIndex = '10';
-        closeButton.style.fontSize = '1.2em';
+        closeButton.className = 'btn btn-secondary closeButton';
         closeButton.addEventListener('click', () => {
             setFrameTitle(null);
             iframeContainer.remove();
         });
         closeButton.innerHTML = 'x';
-        closeButton.style.paddingTop = '0';
-        closeButton.style.paddingBottom = '0';
-
+    
         iframeContainer.appendChild(closeButton);
         iframe.onload = function () {
             const content = iframe.contentWindow || iframe.contentDocument;
-            if (content) { iframeContainer.style.display = 'block'; };
+            if (content) { iframeContainer.style.display = 'block'; }
             try {
                 var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
                 var images = iframeDoc.querySelectorAll('img');
                 images.forEach(function (img) {
-                    img.style.display = 'block';
-                    img.style.webkitUserSelect = 'none';
-                    img.style.maxWidth = '100%';
-                    img.style.maxHeight = '100%';
-                    img.style.objectFit = 'contain';
-                    img.style.margin = 'auto';
+                    img.className = 'iframeContainer img';
+                    img.style.width = '100%';
                 });
+                const contentHeight = iframe.contentWindow.document.body.scrollHeight + 20;
+                iframe.style.height = `${contentHeight}px`;
             }
             catch (error) {
                 console.error('Error fetching file:', error);
             }
         };
+        //set height of iframe container according to the content
+        // get the height of the content
         const container = document.querySelector('.frame');
         container.innerHTML = '';
         container.appendChild(iframeContainer);
-
+    
         // Delay the scroll action to ensure the iframe is fully rendered
         setTimeout(() => {
             frameRef.current?.scrollIntoView({ behavior: 'smooth' });

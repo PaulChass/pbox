@@ -232,17 +232,14 @@ exports.uploadFiles = (req, res) => {
                 //get the size of the file
                 const size = fs.statSync(filePath).size;
                 let it = 1;
-                while (await File.findOne({ where: { name: fileName, folder_id: folderId } })) {
-                    const fileNameParts = file.originalname.split('.');
-                    fileName = `${fileNameParts[0]}(${it}).${fileNameParts[1]}`;
-                    filePath = path.join(__dirname, '..', 'uploads', folderId.toString(), fileName);
-                    it++;
+                
+                //check if the file already exists in the folder
+                if (await File.findOne({ where: { name: fileName, folder_id: folderId } })) {
+                   console.log('File already exists');
+                   return res.status(409).json({ message: 'File already exists' });
                 }
-                await File.create({ name: fileName, path: filePath, folder_id: folderId, size });    
+                else{await File.create({ name: fileName, path: filePath, folder_id: folderId, size });    }
             }
-            //save the file to the database
-            
-
             res.status(200).json({ message: 'Files uploaded and saved successfully' });
         } catch (error) {
             console.error('Failed to process files', error);

@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import Drive from '../components/Drive';
-import { Button } from 'react-bootstrap';
+import AuthMessage from '../components/AuthMessage';
 
 const HomePage = () => {
     const email = localStorage.getItem('email');
@@ -13,16 +13,8 @@ const HomePage = () => {
             folderId={folderId}
             setFolderId={setFolderId}
         />}
-        {!email &&   <div>
-                <h2 className='driveTitle'>My drive</h2>
-                <p style={{ color: 'black' }}> 
-                    <span>You need to Sign In to access your drive</span>
-                    <a href='/login' style={{ marginLeft: '10px', marginRight: '10px' }}>
-                        <Button> Sign in</Button></a>
-                    <a href='/register'>
-                        <Button>Register</Button></a>
-                </p>
-            </div>}
+        {!email && 
+                <AuthMessage/>}
     </div>
     )
 }

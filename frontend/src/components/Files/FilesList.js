@@ -71,7 +71,8 @@ const FilesList = ({
                     },
                     withCredentials: true,
                 });
-                setFiles(response.data.files);
+                let files = response.data.files.filter(file => file.folder_id === folderId); 
+                setFiles(files);
             }
             let posturl = 
             `${baseUrl}/folders/${folderId}/files`;

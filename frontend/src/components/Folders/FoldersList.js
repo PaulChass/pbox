@@ -28,7 +28,7 @@ import FolderItem from './FolderItem';
 
 
 
-const FolderList = ({ folders ,isAuth, isRoot ,shared , isDesktop, folderId, handleDrop, setFolderId, setFolderName
+const FoldersList = ({ folders ,isAuth, isRoot ,shared , isDesktop, folderId, handleDrop, setFolderId, setFolderName
   , folderName , setFolders, setShareFolderId, setShareFolderName, setUpdated, isLoading, setIsLoading, setDownloadProgress, shareFolderRef
   , shareableLink, setShareableLink
  }) => {
@@ -67,4 +67,4 @@ const FolderList = ({ folders ,isAuth, isRoot ,shared , isDesktop, folderId, han
         </div>
     );
 }
-export default FolderList;
+export default FoldersList;

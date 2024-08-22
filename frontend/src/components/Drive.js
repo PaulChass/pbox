@@ -3,17 +3,16 @@ import { useParams } from 'react-router-dom';
 import api, { baseUrl } from '../api.js'; 
 import { findParentFolderId, traverseFileTree } from './Folders/FolderUtilities.js';
 import CreateFolder from './Folders/CreateFolder.js';
-import FileList from './Files/FilesList.js';
+import FilesList from './Files/FilesList.js';
 import CreateShareableLink from './CreateShareableLink.js';
 import { Container, Row, Button, ProgressBar } from 'react-bootstrap';
-import '../styles/FolderContent.css';
-import LoadingSpinner from './LoadingSpinner.js';
-import FolderList from './Folders/FolderList.js';
+import FoldersList from './Folders/FoldersList.js';
 import AuthMessage from './AuthMessage.js';
+import LoadingSpinner from './LoadingSpinner.js';
 import useIsDesktop from './useIsDesktop'; 
 import DriveTitle from './DriveTitle.js'; 
 import BackButton from './BackButton.js';
-
+import '../styles/FolderContent.css';
 
 /**
  * Drive component displays the contents of a drive.
@@ -55,17 +54,27 @@ const Drive = ({ token, folderId, setFolderId, shared }) => {
     const url = useParams().token;
     const email = localStorage.getItem('email');
 
-    // Check if the window is desktop
     const isDesktop = useIsDesktop();
 
-    // Fetch folders function
+
+    /**
+     * Fetches folders from the specified URL.
+     * 
+     * @param {string} url - The URL to fetch folders from.
+     * @param {object} reqparams - The request parameters.
+     * @param {boolean} isShared - Indicates whether the folders are shared.
+     * @returns {Promise<void>} - A promise that resolves when the folders are fetched.
+     * @throws {Error} - If an error occurs while fetching the folders.
+     */
     async function fetchFolders(url, reqparams, isShared) {
         try {
             const response = await api.get(url, reqparams);
             if (isShared ) {
                 setFolders(response.data.folders);
+                if(folders.length === 0) {
                 setFolderId(response.data.folder.id);
                 setFolderName(response.data.folder.name);
+            }
             } else {
                 setFolders(response.data.data);
             }
@@ -80,33 +89,25 @@ const Drive = ({ token, folderId, setFolderId, shared }) => {
             setLazyLoading(false);
         }
     }
-    console.log('folders', folders);
-    // Calls the fetchFolders funnction when the component mounts
+    console.log(token);
+    // Fetch folders when updated state changes
     useEffect(() => {
-        const getFolders = async (token) => {
+        const fetchAndSetFolders = async () => {
             let reqparams = {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 },
                 withCredentials: true
             };
-
             if (shared) {
-                // Add the shared link to the local storage and get the shared links
-              //  localStorage.setItem('sharedLinks', JSON.stringify([...JSON.parse(localStorage.getItem('sharedLinks')), url]));
-                // TODO : If user is authenticated, add shared links to database
                 fetchFolders(`${baseUrl}/shareable-links/${url}`, reqparams, true);
             } else {
                 fetchFolders(`${baseUrl}/folders/${folderId}`, reqparams, false);
-            }
-        };
-
-        // Fetch folders when updated state changes
-        const fetchAndSetFolders = async () => {
-            await getFolders(token);
+            }        
         };
         if (updated) { // Fetch folders when updated state changes
             fetchAndSetFolders();
+            setUpdated(false);
         }
     }, [folderId, token, shared, url, updated, rootFolderId, email, setFolders, setFolderId, setFolderName]);
 
@@ -114,29 +115,26 @@ const Drive = ({ token, folderId, setFolderId, shared }) => {
     // Set updated to true when token changes
     useEffect(() => {
         setUpdated(true);
-    }, [token, setFolders]);
+    }, [token, folderId]);
 
-    // When isLoading is true, scroll to the spinner
+    // Scroll to spinner when loading
     useEffect(() => {
         if (isLoading) {
             spinnerRef.current?.scrollIntoView({ behavior: 'smooth' }); // Scroll to the spinner
         }
     }, [isLoading]);
 
-    // Go to folder when clicked
+    // Go to folder when clicked on folder name
     const goToFolder = (index) => {
-        if (index === 0) { // Go to root folder
+        if (index === 0) { 
             setFolderId(rootFolderId);
             setFolderName(shared ? 'Shared Folder' : 'My drive');
             setUpdated('true');
             return;
         }
-
         let folderNames = folderName.split(' > ');
-
         let newFolderName = folderNames[index].trim();
         let newfolder = folders.find(folder => folder.name === newFolderName);
-        // If folder is found, go to folder
         if (newfolder) {
             setFolderName(folderName.split(' > ').slice(0, index + 1).join(' > '));
             setFolderId(newfolder.id);
@@ -228,7 +226,6 @@ const Drive = ({ token, folderId, setFolderId, shared }) => {
         );
     }
 
-
     // If user is not authenticated, show a message to sign in
     if (!isAuth) {
         return (
@@ -239,13 +236,11 @@ const Drive = ({ token, folderId, setFolderId, shared }) => {
     else {
         return (
             <Container>
-                <DriveTitle shared={shared} /> {/* Use the new component */}
+                <DriveTitle shared={shared} />
                 <Row className="drive">
                     <div className="folders" style={{ marginTop: '1rem', marginBottom: '1rem' }}
                         onDragOver={(e) => e.preventDefault()}
-                        onDrop={(e) => handleUploadFolder(e)}>
-                            
-                        
+                        onDrop={(e) => handleUploadFolder(e)}>       
                         <h3 id='folderName'>
                         {/* Split the folder path into navigation links to parent folders  */}
                         {folderName.split('>').map((name, index) => (<span key={`${name}-${index}`}>
@@ -266,18 +261,18 @@ const Drive = ({ token, folderId, setFolderId, shared }) => {
                           folders={folders} 
                           folderId={folderId} 
                       />}
-                        {folders && 
-                        <FolderList folders={folders} isAuth={isAuth} isRoot={isRoot} shared={shared} isDesktop={isDesktop} folderId={folderId} handleDrop={handleDrop} setFolderId={setFolderId} setFolderName={setFolderName} folderName={folderName} setFolders={setFolders} setShareFolderId={setShareFolderId} setShareFolderName={setShareFolderName} setUpdated={setUpdated} isLoading={isLoading} setIsLoading={setIsLoading} setDownloadProgress={setDownloadProgress}
+                        {folders && // Show folders if they exist
+                        <FoldersList folders={folders} isAuth={isAuth} isRoot={isRoot} shared={shared} isDesktop={isDesktop} folderId={folderId} handleDrop={handleDrop} setFolderId={setFolderId} setFolderName={setFolderName} folderName={folderName} setFolders={setFolders} setShareFolderId={setShareFolderId} setShareFolderName={setShareFolderName} setUpdated={setUpdated} isLoading={isLoading} setIsLoading={setIsLoading} setDownloadProgress={setDownloadProgress}
                             shareFolderRef={shareFolderRef}
                             shareableLink={shareableLink}
                             setShareableLink={setShareableLink}
                         />}
-                        <CreateFolder setUpdated={setUpdated} folderId={folderId} />
+                        <CreateFolder setUpdated={setUpdated} folderId={folderId} /> 
                         
                         {(!isRoot || shared) // dont show files in root folder it would only show no files found
                             &&
                             <div>
-                                <FileList folderId={folderId} showUpload={!isRoot || shared}// dont show upload form in root folder
+                                <FilesList folderId={folderId} showUpload={!isRoot || shared}// dont show upload form in root folder
                                     setIsLoading={setIsLoading}
                                     setDownloadProgress={setDownloadProgress}
                                     showRenameFile={showRenameFile} setShowRenameFile={setShowRenameFile}
@@ -285,9 +280,9 @@ const Drive = ({ token, folderId, setFolderId, shared }) => {
                                     shared={shared}
                                     setUpdated={setUpdated}
                                 />
-
                             </div>
                         }
+
                         <div ref={shareFolderRef}></div>
                         {
                             shareableLink &&

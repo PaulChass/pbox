@@ -30,17 +30,22 @@ exports.createFolder = async (req, res) => {
   const { name, parent_id, email } = req.body;
   try {
     const user = await User.findOne({ where: { email } });
-    const userFolders = await Folder.findAll({ where: { parent_id, user_id: user.id } });
+    console.log('Parent ID:', parent_id);  
+    const userFolders = await Folder.findAll({ where: { user_id: user.id } });
     const folderNames = userFolders.map(folder => folder.name);
     let uniqueFolderName = name;
     let it = 1;
-
+    console.log('Folder names:', folderNames);
     while (folderNames.includes(uniqueFolderName)) {
-      uniqueFolderName = `${name}(${it})`;
-      it++;
+      console.log('Folder name already exists:', uniqueFolderName);
+      res.status(409).json({ success: false, error: 'Folder name already exists' });
     }
-
-    const newFolder = await Folder.create({ name: uniqueFolderName, parent_id, user_id: user.id });
+    console.log('Unique folder name:', uniqueFolderName);
+    
+    const params = { name: uniqueFolderName, parent_id: parent_id, user_id: user.id };
+    console.log('Folder params:', params);
+    const newFolder = await Folder.create(params);
+    console.log('New folder:', newFolder);
     res.status(201).json({ success: true, data: newFolder });
   } catch (error) {
     handleError(res, error, 'Failed to create folder');
@@ -141,3 +146,32 @@ exports.moveFolder = async (req, res) => {
     handleError(res, error, 'Failed to move folder');
   }
 };
+exports.getFolderId = async (req, res) => {
+  const folderName = req.params.folderName;
+  try {
+    const folder = await Folder.findOne({ where: { name: folderName } });
+    if (folder) {
+      res.json({ success: true, data: folder.id });
+    } else {
+      res.status(404).json({ success: false, error: 'Folder not found' });
+    }
+  } catch (error) {
+    handleError(res, error, 'Failed to fetch folder ID');
+  }
+}
+
+
+exports.getParentFolderId = async (req, res) => {
+  const folderName = req.params.folderName;
+  try {
+    const folder = await Folder.findOne({ where: { name: folderName } });
+    if (folder) {
+      res.json({ success: true, data: folder.parent_id });
+    } else {
+      res.status(404).json({ success: false, error: 'Folder not found' });
+    }
+  } catch (error) {
+    handleError(res, error, 'Failed to fetch parent folder ID');
+  }
+}
+

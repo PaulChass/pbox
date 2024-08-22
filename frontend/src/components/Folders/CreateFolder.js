@@ -34,14 +34,11 @@ const CreateFolder = ({ setUpdated, folderId }) => {
             return;
         }
         try {
-
-
             const requestData = {
                 name: folderName,
                 parent_id: folderId,
                 email: localStorage.getItem('email')
             };
-
 
             const config = {
                 headers: {
@@ -54,8 +51,7 @@ const CreateFolder = ({ setUpdated, folderId }) => {
             console.log('Folder created:', response.data);
             // Clear input fields after successful creation
             setFolderName('');
-            setShowFolderForm(false);
-            setUpdated(true);
+           setUpdated(true);
         } catch (error) {
             console.error('Error creating folder:', error);
         }
@@ -73,7 +69,6 @@ const CreateFolder = ({ setUpdated, folderId }) => {
                         className='rename-input'
                     />
                     <BsXCircle style={{ margin: '0.5rem' }} onClick={() => { setShowFolderForm(false) }} />
-
                 </Form> :
                 <span style={{ textDecoration: 'underline', marginBottom: '2rem' }} onClick={() => { setShowFolderForm(prevState => !prevState) }}>Create new folder</span>
             }
