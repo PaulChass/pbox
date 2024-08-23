@@ -58,9 +58,6 @@ async function getFolderIdFromPath(filePath) {
 async function createFolder(folderName, parentFolderId = config.defaultFolderId) {
   try {
     const { finalFolderName, finalParentFolderId } = await getFolderDetails(folderName, parentFolderId);
-    if(finalFolderName === 'Films') { //skip creating folder Films
-      return;
-    }
     console.log(`Creating folder: ${finalFolderName}`);
     console.log(`Parent folder ID: ${finalParentFolderId}`);
 
