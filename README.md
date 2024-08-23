@@ -84,7 +84,7 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 6. To sync the local folder with the remote drive:
    - Set up the `config.js` file in the `backend` directory. This file should include the necessary configuration such as `apiBaseUrl`, `authToken`, `defaultFolderId`, and `email`.
    - Create a SyncFolder on the drive
-   - Run `node sync.js` in the `backend` directory or run the service as a background process using `pm2 start sync.js`### Example `config.js` for Sync Function
+   - Run `node sync.js` in the `backend` directory or run the service as a background process using `pm2 start sync.js`### Example `config.js` for Sync Function 
 
 ```javascript
 module.exports = {
@@ -93,7 +93,9 @@ module.exports = {
   defaultFolderId: 'your-default-folder-id',//SyncFolder folderid
   email: 'your-email@example.com',// The email of the user who owns SyncFolder
   localFolder: 'D:\\SyncFolder', // The local folder you want to synchronize
-};
+}
+```
+
 
 ## Contact
 
