@@ -26,6 +26,4 @@ router.delete('/:fileName/delete', deleteFile);
 // Get a folderId by name
 router.get('/:folderName/id', getFolderId);
 
-//get a folder parent id by name
-router.get('/:folderName/parent-id', getParentFolderId);
 module.exports = router;

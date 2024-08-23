@@ -114,15 +114,6 @@ exports.getFolderId = async (folderName) => {
     return null;
 }
 
-exports.getParentFolderId = async (folderName) => {
-    const folder = await Folder.findOne({ where: { name: folderName } });
-    console.log('Folder:', folder);
-    if (folder) {
-        return folder.id;
-    }
-    return null;
-}
-
 exports.getFolderName = async (folderId) => {
     const folder = await Folder.findByPk(folderId);
     if (!folder) {

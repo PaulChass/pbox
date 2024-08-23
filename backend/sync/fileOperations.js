@@ -17,18 +17,6 @@ async function getFolderId(folderName) {
   }
 }
 
-async function getParentFolderId(folderName) {
-  try {
-    const response = await axios.get(`${config.apiBaseUrl}/sync/${folderName}/parent-id`, {
-      headers: {
-        'Authorization': config.authToken,
-      },
-    });
-    return response.data.id;
-  } catch (error) {
-    console.error(`Failed to get parent folder ID for ${folderName}:`, error.message);
-  }
-}
 
 async function uploadFile(filePath, retries = 0) {
   try {
@@ -103,8 +91,10 @@ async function createFolder(folderName, parentFolderId = config.defaultFolderId)
 async function getFolderDetails(folderName, parentFolderId) {
   const folderPath = folderName.split(path.sep);
   if (folderPath.length > 1) {
-    const finalFolderName = folderPath.pop();
-    let finalParentFolderId = await getParentFolderId(finalFolderName);
+    const finalFolderName = folderPath[folderPath.length - 1];
+    const parentFolderName = folderPath[folderPath.length - 2];
+    console.log(`parentName: ${parentFolderName}`); 
+    let finalParentFolderId = await getFolderId(parentFolderName);
     if (!finalParentFolderId || finalParentFolderId === undefined) {
       finalParentFolderId = config.defaultFolderId;
     }
