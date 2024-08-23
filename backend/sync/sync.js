@@ -17,12 +17,9 @@ program
 
 const options = program.opts();
 
-if (!options.directory) {
-  console.error('Please specify a directory to sync using the -d option.');
-  process.exit(1);
-}
 
-config.directory = path.resolve(options.directory);
+config.directory = config.localFolder;
+console.log('config.directory:', config.localFolder);
 config.pollingInterval = options.interval * 1000 * 60 || config.pollingInterval;
 
 console.log(`Syncing directory: ${config.directory}`);
@@ -146,9 +143,13 @@ async function syncFiles() {
         folderName = path.join(parentFolder.name, folderName);
         remoteFolder = parentFolder;
       }
-      const localFilePath = path.join(config.localFolder,folderName,remoteFile.name);
-      console.log('Local file path:', localFilePath);
-            
+      let localFilePath = path.join(config.localFolder,folderName,remoteFile.name);
+      localFilePathSplit = localFilePath.split(path.sep);
+      // Remove the first element of the array
+      localFilePathSplit.splice(1,1);
+      // Join the array back into a string
+      localFilePath = localFilePathSplit.join(path.sep);
+      
 
       if (!fs.existsSync(localFilePath) || fs.statSync(localFilePath).mtime < new Date(remoteFile.lastModified)) {
         console.log('Downloading:', remoteFile.name);

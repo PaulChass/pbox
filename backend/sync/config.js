@@ -1,6 +1,6 @@
 // Initialize the configuration for the sync service
 module.exports = {
-  localFolder: "D://",
+  localFolder: "D:\\SyncFolder",
   email : "paulchasseuil@hotmail.fr",
   apiBaseUrl: "https://balldontlie.fr/pbox/api",
   authToken: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4iLCJpYXQiOjE2MjYwNjYwNzJ9.1",
