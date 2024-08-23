@@ -58,6 +58,9 @@ async function getFolderIdFromPath(filePath) {
 async function createFolder(folderName, parentFolderId = config.defaultFolderId) {
   try {
     const { finalFolderName, finalParentFolderId } = await getFolderDetails(folderName, parentFolderId);
+    if(finalFolderName === 'Films') { //skip creating folder Films
+      return;
+    }
     console.log(`Creating folder: ${finalFolderName}`);
     console.log(`Parent folder ID: ${finalParentFolderId}`);
 
@@ -105,14 +108,25 @@ async function getFolderDetails(folderName, parentFolderId) {
 
 async function downloadFile(fileName, destinationPath) {
   try {
-    const response = await axios.get(`${config.apiBaseUrl}/sync/download/${fileName}`, {
+    const response = await axios({
+      method: 'get',
+      url: `${config.apiBaseUrl}/sync/download/${fileName}`,
       headers: {
         'Authorization': config.authToken,
       },
-      responseType: 'arraybuffer',
+      responseType: 'stream',
     });
-    fs.writeFileSync(destinationPath, response.data);
-    console.log(`Downloaded: ${fileName} into ${destinationPath}`);
+
+    const writer = fs.createWriteStream(destinationPath);
+    response.data.pipe(writer);
+
+    writer.on('finish', () => {
+      console.log(`Downloaded: ${fileName} into ${destinationPath}`);
+    });
+
+    writer.on('error', (err) => {
+      console.error(`Error writing file: ${err.message}`);
+    });
   } catch (error) {
     handleDownloadError(error, fileName);
   }
