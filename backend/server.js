@@ -61,11 +61,19 @@ app.delete('/api/users/:userId', async (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
+// Big uploads on slow connections can take far longer than Node's default
+// 5-minute requestTimeout (Node >= 18), which kills them mid-transfer.
+// Default: 6 hours. Override with UPLOAD_TIMEOUT_MS (0 disables the limit).
+const UPLOAD_TIMEOUT_MS = Number(process.env.UPLOAD_TIMEOUT_MS ?? 6 * 60 * 60 * 1000);
+
 sequelize.sync()
   .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+    const server = app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT} (request timeout: ${UPLOAD_TIMEOUT_MS} ms)`);
     });
+    server.requestTimeout = UPLOAD_TIMEOUT_MS; // whole request, body included
+    server.timeout = 0;                        // no socket inactivity cutoff
+    // headersTimeout (60 s) is left as-is: it only covers receiving headers.
   })
   .catch(err => console.log('Error: ' + err));
 
