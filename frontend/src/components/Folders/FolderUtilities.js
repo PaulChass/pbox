@@ -1,4 +1,5 @@
 // folderUtils.js
+import { tusUpload, notifyStorageChanged } from '../../tusUpload.js';
 
 export const findParentFolderId = (folders, id) => {
 	const folder = folders.find(folder => folder.id === id);
@@ -9,18 +10,10 @@ export const traverseFileTree = async (item, parentId, email, path = '', api, to
 	setIsLoading(true);
 	if (item.isFile) {
 		item.file((file) => {
-			const formData = new FormData();
-			formData.append('files', file);
-			formData.append('email', email);
-			formData.append('folderId', folderId);
-			let postUrl = `${baseUrl}/folders/${parentId}/upload`;
-			api.post(postUrl, formData, {
-				headers: {
-					'Content-Type': 'multipart/form-data',
-					'Authorization': `Bearer ${token}`
-				},
-				withCredentials: true
-			});
+			// Chunked + resumable upload (tus) into the folder created for this level.
+			tusUpload(file, parentId)
+				.then(() => { setUpdated && setUpdated(true); notifyStorageChanged(); })
+				.catch((err) => { console.error(err); alert(err.message); });
 		});
 	} else if (item.isDirectory) {
 		const requestData = {
@@ -41,7 +34,9 @@ export const traverseFileTree = async (item, parentId, email, path = '', api, to
 		const dirReader = item.createReader();
 		dirReader.readEntries((entries) => {
 			for (let i = 0; i < entries.length; i++) {
-				traverseFileTree(entries[i], parentId, path + item.name + '/', api, token, baseUrl, setIsLoading, setUpdated, folderId);
+				// Pass `email` too: it was missing, which shifted every later argument
+				// and broke uploads of files inside nested subfolders.
+				traverseFileTree(entries[i], parentId, email, path + item.name + '/', api, token, baseUrl, setIsLoading, setUpdated, folderId);
 			}
 		});
 	}

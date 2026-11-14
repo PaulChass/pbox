@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import api, { baseUrl } from '../api.js'; 
 import { findParentFolderId, traverseFileTree } from './Folders/FolderUtilities.js';
+import { tusUpload, notifyStorageChanged } from '../tusUpload.js';
 import CreateFolder from './Folders/CreateFolder.js';
 import FilesList from './Files/FilesList.js';
 import CreateShareableLink from './CreateShareableLink.js';
@@ -195,18 +196,9 @@ const Drive = ({ token, folderId, setFolderId, shared }) => {
                 if (item.isFile) {
 
                     item.file((file) => {
-                        const formData = new FormData();
-                        formData.append('files', file);
-                        formData.append('email', localStorage.getItem('email'));
-                        formData.append('folderId', folderId);
-                        let postUrl = `${baseUrl}/folders/${parentId}/upload`;
-                        api.post(postUrl, formData, {
-                            headers: {
-                                'Content-Type': 'multipart/form-data',
-                                'Authorization': `Bearer ${token}`
-                            },
-                            withCredentials: true
-                        });
+                        tusUpload(file, parentId)
+                            .then(() => { setUpdated(true); notifyStorageChanged(); })
+                            .catch((err) => { console.error(err); alert(err.message); });
                     });
                 } else if (item.isDirectory) {
                     traverseFileTree(item, parentId, email, '', api, token, baseUrl, setIsLoading, setUpdated, folderId);

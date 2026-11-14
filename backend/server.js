@@ -22,6 +22,21 @@ const app = express();
 // Middleware setup
 require('dotenv').config();
 
+// Resumable chunked uploads (tus). Mounted before cors()/body parsers: tus
+// answers its own CORS preflights (Upload-Offset, Location, ... headers).
+const path = require('path');
+const File = require('./models/File');
+const { createTusServer, scheduleCleanup, TUS_PATH } = require('./tus/tusServer');
+const { server: tusServer } = createTusServer({
+  uploadsDir: path.join(__dirname, 'uploads'),
+  FileModel: File,
+  maxSize: Number(process.env.UPLOAD_MAX_SIZE) || undefined,
+});
+scheduleCleanup(tusServer);
+const handleTus = (req, res) => tusServer.handle(req, res);
+app.all(TUS_PATH, handleTus);
+app.all(`${TUS_PATH}/*`, handleTus);
+
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(cors({
@@ -41,6 +56,7 @@ app.use('/api/files', filesRoutes);
 app.use('/api/shareable-links', shareableLinkRoutes );
 app.use('/api/videos', videoRoutes );
 app.use('/api/sync', syncRoutes);
+app.use('/api/drive', require('./routes/drive'));
 
 // Example route to delete a user by ID
 app.delete('/api/users/:userId', async (req, res) => {
