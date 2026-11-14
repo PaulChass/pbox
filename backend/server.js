@@ -40,7 +40,7 @@ app.all(`${TUS_PATH}/*`, handleTus);
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(cors({
-  origin: 'http://localhost:3000', // replace with your frontend URL
+  origin: process.env.CORS_ORIGIN || '*', // production used '*'; Apache also sets it for /pbox
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   allowedHeaders: 'Content-Type, Authorization',  
   credentials: true, 
