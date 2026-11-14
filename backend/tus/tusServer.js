@@ -58,9 +58,12 @@ const createTusServer = ({ uploadsDir, FileModel, maxSize }) => {
     const server = new Server({
         path: TUS_PATH,
         datastore,
-        // Location header like "/api/tus/<id>": works behind any proxy/HTTPS
-        // setup without trusting X-Forwarded-* headers.
-        relativeLocation: true,
+        // Location header "tus/<id>", relative to the endpoint the client
+        // POSTed to (".../api/tus"). The browser resolves it to
+        // ".../api/tus/<id>" whatever the public prefix is (e.g.
+        // https://balldontlie.fr/pbox/api) and whether or not a proxy
+        // terminates HTTPS, without trusting X-Forwarded-* headers.
+        generateUrl: (req, { id }) => `tus/${id}`,
         ...(maxSize ? { maxSize } : {}),
 
         // Reject duplicates *before* any byte is sent, instead of after a
