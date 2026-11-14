@@ -11,7 +11,7 @@ const Folder = sequelize.define('Folder', {
         type: DataTypes.INTEGER,
         allowNull: true,
         references: {
-            model: 'folders',
+            model: 'Folders',
             key: 'id'
         }
     },
@@ -19,7 +19,7 @@ const Folder = sequelize.define('Folder', {
         type: DataTypes.INTEGER,
         allowNull: true,
         references: {
-            model: 'users',
+            model: 'Users',
             key: 'id'
         }
     }

@@ -17,9 +17,12 @@ program
 
 const options = program.opts();
 
+if (!options.directory) {
+  console.error('Please specify a directory to sync using the -d option.');
+  process.exit(1);
+}
 
-config.directory = config.localFolder;
-console.log('config.directory:', config.localFolder);
+config.directory = path.resolve(options.directory);
 config.pollingInterval = options.interval * 1000 * 60 || config.pollingInterval;
 
 console.log(`Syncing directory: ${config.directory}`);
@@ -95,15 +98,13 @@ async function syncFiles() {
         }
       }
     }
-    console.log('Step 1: create folders on remote done');
+
     // Create folders that exist remotely but not locally
     for (let remoteFolder of remoteFolders) {
-      if(remoteFolder.name === 'SyncFolder') {
-        continue;
-      }
       if (!localSubFolders.includes(remoteFolder.name)) {
         let folderPath = '';
         let currentFolder = remoteFolder;
+
         // Traverse up the folder hierarchy
         while (currentFolder.parent_id !== config.defaultFolderId) {
           folderPath = path.join(currentFolder.name, folderPath);
@@ -119,7 +120,7 @@ async function syncFiles() {
         }
       }
     }
-    console.log('Step 2 : create folders locally done');
+
     // Upload files that exist locally but not remotely or are newer than the remote version
     for (let localFile of localFiles) {
       const localFilePath = path.join(config.directory, localFile);
@@ -131,32 +132,31 @@ async function syncFiles() {
         await uploadFile(localFilePath);
       }
     }
-    console.log('Step 3 : upload files done');
 
     // Download files that exist remotely but not locally or are newer than the local version
     for (const remoteFile of remoteFiles) {
       let remoteFolder = remoteFolders.find(folder => folder.id === remoteFile.folder_id);
       let folderName = remoteFolder.name; // Initialize folderName
+
       // Traverse up the folder hierarchy to construct the full path
-      while (remoteFolder.parent_id !== null) {
+      while (remoteFolder.parent_id !== config.defaultFolderId) {
         const parentFolder = remoteFolders.find(folder => folder.id === remoteFolder.parent_id);
         folderName = path.join(parentFolder.name, folderName);
         remoteFolder = parentFolder;
       }
-      let localFilePath = path.join(config.localFolder,folderName,remoteFile.name);
-      localFilePathSplit = localFilePath.split(path.sep);
-      // Remove the first element of the array
-      localFilePathSplit.splice(1,1);
-      // Join the array back into a string
-      localFilePath = localFilePathSplit.join(path.sep);
-      
 
+      // Prepend the base directory
+      folderName = path.join(config.directory, folderName);
+
+
+      console.log('Remote file:', remoteFile.name);
+
+      const localFilePath = path.join(folderName, remoteFile.name);
       if (!fs.existsSync(localFilePath) || fs.statSync(localFilePath).mtime < new Date(remoteFile.lastModified)) {
         console.log('Downloading:', remoteFile.name);
         await downloadFile(remoteFile.name, localFilePath);
       }
     }
-    console.log('Step 4: download files done');
   } catch (error) {
     console.error('Error during sync:', error.message);
   }

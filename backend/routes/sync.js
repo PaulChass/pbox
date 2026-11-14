@@ -21,9 +21,9 @@ router.get('/download/:fileName/',authenticateServer,downloadFile );
 router.post('/upload/:folderId', upload.single('file'), uploadFiles);
 
 // Delete a file
-router.delete('/:fileName/delete', deleteFile);
+router.delete('/:filePath/delete', deleteFile);
 
 // Get a folderId by name
-router.get('/:folderName/id', getFolderId);
+router.get('/:folderName/:parentFolderId/id', getFolderId);
 
 module.exports = router;

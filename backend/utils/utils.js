@@ -2,7 +2,8 @@ const path = require('path');
 const fs = require('fs');
 const Folder = require('../models/Folder');
 const File = require('../models/File');
-
+const axios = require('axios');
+const config = require('../sync/config');
 
 exports.calculateFolderSize = async (folderId) => {
   const files = await File.findAll({ where: { folder_id: folderId } });
@@ -72,3 +73,32 @@ exports.ensureFolderStructure = async (folderPath, rootFolderId) => {
   }
   return currentParentId;
 };
+
+exports.getFolderId = async (folderName) => {
+  const folder = await Folder.findOne({ where: { name: folderName } });
+  if (folder) {
+    return folder.id;
+  }
+  return null;
+}
+
+exports.getParentFolderId = async (folderName) => {
+const folder = await Folder.findOne({ where: { name: folderName } });
+
+if (folder) {
+  return folder.parent_id;
+}
+return null;
+}
+
+
+
+
+exports.getFolderName = async (folderId) => {
+  const folder = await Folder.findByPk(folderId);
+  if (!folder) {
+    return null;
+  }
+  return folder.name;
+}
+

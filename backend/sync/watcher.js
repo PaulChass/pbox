@@ -1,6 +1,6 @@
 const chokidar = require('chokidar');
 const path = require('path');
-const {  deleteFileOnServer } = require('./fileOperations');
+const { uploadFile, deleteFileOnServer } = require('./fileOperations');
 const config = require('./config');
 
 function startWatcher() {

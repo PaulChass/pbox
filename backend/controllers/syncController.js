@@ -75,8 +75,24 @@ exports.downloadFile = async (req, res) => {
 
 exports.deleteFile = async (req, res) => {
     try {
-        const fileName = req.params.fileName;
-        const file = await File.findOne({ where: { name: fileName } });
+        const localPath = req.params.filePath;
+
+        const syncFolder = await Folder.findOne({ where: { name: 'SyncFolder' } });
+
+        localSubFolders = localPath.split('/');
+        let parent_id = syncFolder.id;
+        while (localSubFolders.length > 1) {
+            const folderName = localSubFolders.shift();
+            const folder = await Folder.findOne({ where: { name: folderName, parent_id: parent_id } });
+            if (!folder) {
+                console.log('Folder not found');
+                return res.status(404).json({ error: 'Folder not found' });
+            }
+            parent_id = folder.id
+        }
+
+
+        const file = await File.findOne({ where: { name: localSubFolders[0], folder_id: parent_id } });
 
         if (!file) {
             console.log('File not found');
@@ -106,12 +122,20 @@ exports.deleteFile = async (req, res) => {
     }
 }
 
-exports.getFolderId = async (folderName) => {
-    const folder = await Folder.findOne({ where: { name: folderName } });
-    if (folder) {
-        return folder.id;
+exports.getFolderId = async (req, res) => {
+    try {
+        const folderName = req.params.folderName;
+        const parent_id = req.params.parentFolderId;
+
+        const folder = await Folder.findOne({ where: { name: folderName, parent_id: parent_id } });
+        if (!folder) {
+            return res.json({ folderId: null });
+        }
+        res.json({ folderId: folder.id });
+    } catch (error) {
+        console.error('Error in getFolderId:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
-    return null;
 }
 
 exports.getFolderName = async (folderId) => {
